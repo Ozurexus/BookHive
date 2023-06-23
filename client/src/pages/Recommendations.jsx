@@ -4,7 +4,7 @@ import Navbar from "../components/UI/Navbar/Navbar";
 
 const Recommendations = () => {
     return (
-        <div style={{width:"100%"}}>
+        <div>
             <Navbar></Navbar>
 
         </div>
