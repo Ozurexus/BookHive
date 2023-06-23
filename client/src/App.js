@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {BrowserRouter, Navigate} from "react-router-dom";
+import {BrowserRouter} from "react-router-dom";
 import AppRouter from './components/AppRouter';
 import './styles/App.css'
 import {AuthContext} from "./context";
@@ -7,22 +7,22 @@ import {AuthContext} from "./context";
 
 function App() {
     const [isAuth, setIsAuth] = useState(false);
+    const [isLoading, setLoading] = useState(true);
 
     useEffect(() => {
         if(localStorage.getItem('auth')) {
             setIsAuth(true);
         }
-    }, )
+        setLoading(false);
+    }, [])
 
     return (
         <AuthContext.Provider value={{
             isAuth,
-            setIsAuth
+            setIsAuth,
+            isLoading
         }}>
             <BrowserRouter>
-                {!isAuth && (
-                    <Navigate to='/login' replace={true}/>
-                )}
                 <AppRouter/>
             </BrowserRouter>
         </AuthContext.Provider>

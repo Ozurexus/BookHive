@@ -6,7 +6,6 @@ const Recommendations = () => {
     return (
         <div>
             <Navbar></Navbar>
-
         </div>
     )
 }
