@@ -43,7 +43,7 @@ def dump_from_csv():
         reader = csv.reader(file, delimiter=',', quotechar='"')
         books = [row[:-1] + ['', ''] for row in reader][1:]
         for book in books:
-            book[0] = int(book[0])
+            book[0] = int(book[0]) + 1
             book[4] = int(book[4])
         books = [tuple(book) for book in books]
         records_list_template = ','.join(['%s'] * 11)
@@ -83,7 +83,7 @@ def dump_from_csv():
             for i in ratings
         )
         insert_query = (
-            f"INSERT INTO ratings (user_id, book_id, rating) " f"VALUES {args}"
+            f"INSERT INTO ratings (user_id, rating, book_id) " f"VALUES {args}"
         )
         print("ratings table import...", end="")
         cur.execute(insert_query)
