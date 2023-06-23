@@ -43,7 +43,7 @@ def get_config() -> Config:
 
     config: Config = Config()
     postgres = DictObj(config_json.get("postgres"))
-    backend = DictObj(config_json.get('backend'))
+    backend = DictObj(config_json.get("backend"))
 
     # merging
     config.PostgresConfig = postgres

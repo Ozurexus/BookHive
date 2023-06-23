@@ -1,17 +1,29 @@
+import logging
+from typing import List
+
 import psycopg2
 import requests
 
 from config import Postgres
+from models import BooksByPatternItem, RateReq, Book
+
+
+class ConstraintError(Exception):
+    pass
 
 
 class DB:
     def __init__(self, conf: Postgres):
-        print("connecting to postgres...")
+        logging.info("connecting to postgres...")
         self.conn = psycopg2.connect(
-            dbname=conf.database, user=conf.user, password=conf.password, host=conf.host, port=int(conf.port)
+            dbname=conf.database,
+            user=conf.user,
+            password=conf.password,
+            host=conf.host,
+            port=int(conf.port),
         )
         self.cur = self.conn.cursor()
-        print('connected!')
+        logging.info("connected!")
 
     def update_annotation_and_genre(self, book_id, annotation, genre):
         update_query = f"""UPDATE books
@@ -19,48 +31,111 @@ class DB:
                         WHERE id = %s"""
         self.cur.execute(update_query, (annotation, genre, book_id))
         self.conn.commit()
-        print('annotation and genre updated!')
+        logging.debug("annotation and genre updated!")
 
-    def get_book_info(self, book_id):
-        select_query = f"""SELECT * FROM books WHERE id = %s"""
-        self.cur.execute(select_query, (book_id, ))
-        data = self.cur.fetchone()
-        self.conn.commit()
-        book_info = {'isbn': data[1], 'title': data[2], 'author': data[3], 'year_of_publication': data[4],
-                     'publisher': data[5], 'image_url_s': data[6], 'image_url_m': data[7], 'image_url_l': data[8],
-                     'genre': data[9], 'annotation': data[10]}
-        if book_info['genre'] == '' and book_info['annotation'] == '':
-            annotation, genre = take_annotation_and_genre(book_info['isbn'])
-            if book_info['annotation'] != annotation or book_info['genre'] != genre:
-                book_info['annotation'], book_info['genre'] = annotation, genre
-                self.update_annotation_and_genre(book_id, annotation, genre)
-        return book_info
+    def get_user_recommended_books(self, user_id) -> List[Book]:
+        select_query = f"""
+            SELECT b.id, isbn, title, author, year_of_publication, publisher, image_url_s, image_url_m, image_url_l, genre, annotation
+            FROM books b
+                     JOIN ratings r ON b.id = r.book_id
+            WHERE r.user_id = %s
+        """
+        books: List[Book] = []
+        self.cur.execute(select_query, (user_id,))
+        for book in self.cur.fetchall():
+            book_model: Book = Book(
+                id=int(book[0]),
+                isbn=book[1],
+                title=book[2],
+                author=book[3],
+                year_of_publication=int(book[4]),
+                publisher=book[5],
+                image_url_s=book[6],
+                image_url_m=book[7],
+                image_url_l=book[8],
+                genre=book[9],
+                annotation=book[10],
+            )
+
+            if book_model.genre == "" and book_model.annotation == "":
+                annotation, genre = fetch_annotation_and_genre(book_model.isbn)
+                book_model.annotation = annotation
+                book_model.genre = genre
+                self.update_annotation_and_genre(book_model.id, annotation, genre)
+            books.append(book_model)
+        return books
+
+    def find_books_by_title_pattern(
+        self, pattern: str, limit: int = 0
+    ) -> List[BooksByPatternItem]:
+        query = """SELECT id, title, author, image_url_s 
+        FROM books WHERE LOWER(title) LIKE (%s)
+        """
+        pattern = pattern + "%"
+        if limit > 0:
+            query += " LIMIT %s"
+            self.cur.execute(query, (pattern, limit))
+        else:
+            self.cur.execute(query, (pattern,))
+
+        dst = []
+        for item in self.cur.fetchall():
+            dst.append(
+                BooksByPatternItem(
+                    book_id=item[0],
+                    title=item[1],
+                    author=item[2],
+                    image_link_small=item[3],
+                )
+            )
+        return dst
+
+    def rate_book(self, rate_req: RateReq):
+        query = """INSERT INTO ratings (user_id, book_id, rating) 
+                    VALUES (%s, %s, %s) """
+        try:
+            self.cur.execute(query, (rate_req.user_id, rate_req.book_id, rate_req.rate))
+            self.conn.commit()
+        except psycopg2.errors.ForeignKeyViolation:
+            raise ConstraintError
+
+    def get_books_ids_by_user(self, user_id: int):
+        query = f"""SELECT book_id 
+                        FROM ratings 
+                        WHERE user_id = %s"""
+        self.cur.execute(query, (user_id,))
+        data = self.cur.fetchall()
+        books_ids = []
+        for book_id in data:
+            books_ids.append(book_id[0])
+
+        return books_ids
 
 
-def take_annotation_and_genre(isbn):
-    print('take_annotation_and_genre')
+def fetch_annotation_and_genre(isbn):
+    logging.debug("take_annotation_and_genre")
     base_url = "https://www.googleapis.com/books/v1"
     search_url = f"{base_url}/volumes?q=isbn:{isbn}"
     response = requests.get(search_url)
     response.raise_for_status()
-    result = response.json()['items'][0]
-    book_id = result['id']
+    result = response.json()["items"][0]
+    book_id = result["id"]
     book_url = f"{base_url}/volumes/{book_id}"
     response = requests.get(book_url)
     response.raise_for_status()
     book = response.json()
     try:
-        annotation = book['volumeInfo']['description']
+        annotation = book["volumeInfo"]["description"]
     except Exception as e:
         try:
-            annotation = book['description']
+            annotation = book["description"]
         except Exception as e:
-            annotation = ''
+            annotation = ""
     try:
-        genre = book['volumeInfo']['categories'][0]
+        genre = book["volumeInfo"]["categories"][0]
     except Exception as e:
         try:
-            genre = book['categories'][0]
+            genre = book["categories"][0]
         except Exception as e:
-            genre = ''
+            genre = ""
     return annotation, genre

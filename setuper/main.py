@@ -38,20 +38,23 @@ def migrate():
 def dump_from_csv():
     # books
     books_file = "./csv/books.csv"
-    with open(books_file, 'r') as file:
-        reader = csv.reader(file, delimiter=',', quotechar='"')
-        books = [row[:-1] + ['', ''] for row in reader][1:]
+    with open(books_file, "r") as file:
+        reader = csv.reader(file, delimiter=",", quotechar='"')
+        books = [row[:-1] + ["", ""] for row in reader][1:]
         for book in books:
             book[0] = int(book[0]) + 1
             book[4] = int(book[4])
         books = [tuple(book) for book in books]
-        records_list_template = ','.join(['%s'] * 11)
-        args = ','.join(cur.mogrify(f"({records_list_template})", i).decode('utf-8')
-                        for i in books)
+        records_list_template = ",".join(["%s"] * 11)
+        args = ",".join(
+            cur.mogrify(f"({records_list_template})", i).decode("utf-8") for i in books
+        )
 
-        insert_query = f'INSERT INTO books (id, isbn, title, author, year_of_publication, ' \
-                       f'publisher, image_url_s, image_url_m, image_url_l, genre, annotation) ' \
-                       f'VALUES {args}'
+        insert_query = (
+            f"INSERT INTO books (id, isbn, title, author, year_of_publication, "
+            f"publisher, image_url_s, image_url_m, image_url_l, genre, annotation) "
+            f"VALUES {args}"
+        )
 
         print("books table import...", end="")
         cur.execute(insert_query)

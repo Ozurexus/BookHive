@@ -3,7 +3,7 @@
     "database": "bookhive",
     "user": "postgres",
     "password": "admin",
-    "host": "db_postgres",
+    "host": "127.0.0.1",
     "port": 5432
   },
   "backend": {
