@@ -36,7 +36,6 @@ def migrate():
 
 
 def dump_from_csv():
-
     # books
     books_file = "./csv/books.csv"
     with open(books_file, 'r') as file:

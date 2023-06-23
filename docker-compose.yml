@@ -36,6 +36,19 @@ services:
     depends_on:
       db_postgres:
         condition: service_healthy
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ./Dockerfile
+    networks:
+      - mynet
+    volumes:
+      - ./config.json:/app/config.json
+    depends_on:
+      db_postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
 
 networks:
   mynet:
