@@ -1,0 +1,9 @@
+{
+  "postgres": {
+    "database": "bookhive",
+    "user": "postgres",
+    "password": "admin",
+    "host": "db_postgres",
+    "port": 5432
+  }
+}

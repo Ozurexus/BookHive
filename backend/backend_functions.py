@@ -1,4 +1,5 @@
 # TODO: implement
+
 def get_rated_books(user_id):
     # take data from database
     # return data
