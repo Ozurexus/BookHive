@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import List
 
 from pydantic import BaseModel
@@ -40,5 +42,36 @@ class RateReq(BaseModel):
     user_id: int
 
 
+class User(BaseModel):
+    id: int
+    login: str
+    password_hash: str
+
+
 class PongResponse(BaseModel):
     message: str
+
+
+class JWT(BaseModel):
+    access_token: str
+    refresh_token: str
+
+
+class UserRegisterReq(BaseModel):
+    login: str
+    password: str
+
+
+class UserRegisterResp(BaseModel):
+    user_id: int
+    jwt: JWT
+
+
+class UserLoginReq(BaseModel):
+    login: str
+    password: str
+
+
+class UserLoginResp(BaseModel):
+    user_id: int
+    jwt: JWT

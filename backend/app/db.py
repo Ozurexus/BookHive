@@ -5,10 +5,18 @@ import psycopg2
 import requests
 
 from config import Postgres
-from models import BooksByPatternItem, RateReq, Book
+from models import *
 
 
 class ConstraintError(Exception):
+    pass
+
+
+class UserAlreadyExists(Exception):
+    pass
+
+
+class UserNotFound(Exception):
     pass
 
 
@@ -66,7 +74,7 @@ class DB:
         return books
 
     def find_books_by_title_pattern(
-        self, pattern: str, limit: int = 0
+            self, pattern: str, limit: int = 0
     ) -> List[BooksByPatternItem]:
         query = """SELECT id, title, author, image_url_s 
         FROM books WHERE LOWER(title) LIKE (%s)
@@ -110,6 +118,39 @@ class DB:
             books_ids.append(book_id[0])
 
         return books_ids
+
+    def register_user(self, user: UserRegisterReq, pass_hash: str) -> User:
+        query = """SELECT * FROM users WHERE login=%s AND password_hash=%s"""
+        self.cur.execute(query, (user.login, pass_hash))
+        if len(self.cur.fetchall()):
+            raise UserAlreadyExists
+
+        query = """insert INTO users (id, login, password_hash)
+            SELECT MAX(id) + 1, %s, %s FROM users
+            RETURNING id, login, password_hash"""
+        self.cur.execute(query, (user.login, pass_hash))
+        self.conn.commit()
+
+        data = self.cur.fetchall()[0]
+
+        user_id = int(data[0])
+        login = str(data[1])
+        password_hash = str(data[2])
+
+        return User(id=user_id, login=login, password_hash=password_hash)
+
+    def login_user(self, user: UserLoginReq, pass_hash: str) -> User:
+        query = """SELECT * FROM users WHERE login=%s AND password_hash=%s"""
+        self.cur.execute(query, (user.login, pass_hash))
+        dst = self.cur.fetchall()
+        if not len(dst):
+            raise UserNotFound
+
+        data = dst[0]
+        user_id = int(data[0])
+        login = str(data[1])
+        password_hash = str(data[2])
+        return User(id=user_id, login=login, password_hash=password_hash)
 
 
 def fetch_annotation_and_genre(isbn):

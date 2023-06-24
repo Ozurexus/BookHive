@@ -29,6 +29,10 @@ class Backend:
         self.port: int = 8080
         self.host: str = "0.0.0.0"
         self.log_level: str = "info"
+        self.jwt_key: str = "a"
+        self.algorithm: str = "HS256"
+        self.tokenTTL = 30
+        self.password_salt = "salt"
 
 
 class Config:
