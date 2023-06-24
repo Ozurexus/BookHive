@@ -1,0 +1,10 @@
+.navbar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.navbarInput {
+    width: 40%;
+    border: 5px solid yellow;
+}
