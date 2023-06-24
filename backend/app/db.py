@@ -34,7 +34,7 @@ class DB:
         logging.info("connected!")
 
     def update_annotation_and_genre(self, book_id, annotation, genre):
-        update_query = f"""UPDATE books
+        update_query = """UPDATE books
                         SET annotation = %s, genre = %s
                         WHERE id = %s"""
         self.cur.execute(update_query, (annotation, genre, book_id))
@@ -42,7 +42,7 @@ class DB:
         logging.debug("annotation and genre updated!")
 
     def get_user_recommended_books(self, user_id) -> List[Book]:
-        select_query = f"""
+        select_query = """
             SELECT b.id, isbn, title, author, year_of_publication, publisher, image_url_s, image_url_m, image_url_l, genre, annotation
             FROM books b
                      JOIN ratings r ON b.id = r.book_id
@@ -74,7 +74,7 @@ class DB:
         return books
 
     def find_books_by_title_pattern(
-            self, pattern: str, limit: int = 0
+        self, pattern: str, limit: int = 0
     ) -> List[BooksByPatternItem]:
         query = """SELECT id, title, author, image_url_s 
         FROM books WHERE LOWER(title) LIKE (%s)
@@ -108,7 +108,7 @@ class DB:
             raise ConstraintError
 
     def get_books_ids_by_user(self, user_id: int):
-        query = f"""SELECT book_id 
+        query = """SELECT book_id 
                         FROM ratings 
                         WHERE user_id = %s"""
         self.cur.execute(query, (user_id,))
@@ -152,18 +152,16 @@ class DB:
         password_hash = str(data[2])
         return User(id=user_id, login=login, password_hash=password_hash)
 
-    def change_password(self, user: UserLoginReq, pass_hash: str) -> User:
-        query = """SELECT * FROM users WHERE login=%s AND password_hash=%s"""
-        self.cur.execute(query, (user.login, pass_hash))
+    def change_password(self, user_id: int, old_password: str, new_password: str):
+        query = """SELECT 1 FROM users WHERE password_hash=%s AND id=%s"""
+        self.cur.execute(query, (old_password, user_id))
         dst = self.cur.fetchall()
         if not len(dst):
             raise UserNotFound
 
-        data = dst[0]
-        user_id = int(data[0])
-        login = str(data[1])
-        password_hash = str(data[2])
-        return User(id=user_id, login=login, password_hash=password_hash)
+        query_update = """UPDATE users SET password_hash=%s WHERE id=%s"""
+        self.cur.execute(query_update, (new_password, user_id))
+        self.conn.commit()
 
 
 def fetch_annotation_and_genre(isbn):
@@ -180,16 +178,16 @@ def fetch_annotation_and_genre(isbn):
     book = response.json()
     try:
         annotation = book["volumeInfo"]["description"]
-    except Exception as e:
+    except Exception:
         try:
             annotation = book["description"]
-        except Exception as e:
+        except Exception:
             annotation = ""
     try:
         genre = book["volumeInfo"]["categories"][0]
-    except Exception as e:
+    except Exception:
         try:
             genre = book["categories"][0]
-        except Exception as e:
+        except Exception:
             genre = ""
     return annotation, genre

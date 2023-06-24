@@ -1,14 +1,12 @@
 from __future__ import annotations
-
 import logging
+from time import sleep
 
-from fastapi import FastAPI, HTTPException, Header, Request
-from fastapi.responses import JSONResponse
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 
-from time import sleep
 
 from models import *
 
@@ -20,14 +18,14 @@ from jwt import *
 from typing import List
 
 # ------------------------------------MIDDLEWARE------------------------------------
-WHITE_LIST_URLS = ['/api/docs', '/api/ping', '/api/openapi.json']
+WHITE_LIST_URLS = ["/api/docs", "/api/ping", "/api/openapi.json"]
 
 
 class AuthMiddleware(BaseHTTPMiddleware):
     def __init__(
-            self,
-            app,
-            some_attribute: str,
+        self,
+        app,
+        some_attribute: str,
     ):
         super().__init__(app)
         self.some_attribute = some_attribute
@@ -37,29 +35,23 @@ class AuthMiddleware(BaseHTTPMiddleware):
             if request.url.path == white_url:
                 return await call_next(request)
 
-        token = request.headers.get('Authorization')
+        token = request.headers.get("Authorization")
         if token is None:
             logging.error("empty auth header")
-            return JSONResponse(status_code=401, content={
-                "error": "Empty auth header"
-            })
+            return JSONResponse(status_code=401, content={"error": "Empty auth header"})
 
-        token = token.split('Bearer ')
+        token = token.split("Bearer ")
 
         if len(token) != 2:
             logging.error("Malformed Token")
-            return JSONResponse(status_code=401, content={
-                "error": "Malformed Token"
-            })
+            return JSONResponse(status_code=401, content={"error": "Malformed Token"})
 
         token = token[1]
         try:
             validate_jwt(config=config, token=token)
         except Exception as e:
             logging.error(e)
-            return JSONResponse(status_code=401, content={
-                "error": "invalid jwt"
-            })
+            return JSONResponse(status_code=401, content={"error": "invalid jwt"})
 
         response = await call_next(request)
 
@@ -78,9 +70,9 @@ app.add_middleware(
 
 app_auth = FastAPI(openapi_prefix="/auth")
 app_api = FastAPI(openapi_prefix="/api")
-app_api.add_middleware(AuthMiddleware, some_attribute='some_attribute')
-app.mount('/auth', app_auth)
-app.mount('/api', app_api)
+app_api.add_middleware(AuthMiddleware, some_attribute="some_attribute")
+app.mount("/auth", app_auth)
+app.mount("/api", app_api)
 
 
 @app.get("/ping", response_model=PongResponse)
@@ -143,10 +135,13 @@ async def books_rate(rate_req: RateReq):
 
 
 # ------------------------------------------------------AUTH------------------------------------------------------------------------
-@app_auth.post('/users/register', response_model=UserRegisterResp)
+@app_auth.post("/users/register", response_model=UserRegisterResp)
 async def register_user(register_req: UserRegisterReq):
     try:
-        user = db.register_user(register_req, hash_password(register_req.password, config.BackendConfig.password_salt))
+        user = db.register_user(
+            register_req,
+            hash_password(register_req.password, config.BackendConfig.password_salt),
+        )
     except UserAlreadyExists as e:
         logging.error(e)
         raise HTTPException(status_code=409, detail="User already exists")
@@ -154,20 +149,20 @@ async def register_user(register_req: UserRegisterReq):
         logging.error(e)
         raise HTTPException(status_code=500)
 
-    access_token = create_access_token(
-        config=config,
-        user=user
-    )
-    token = JWT(access_token=access_token, refresh_token='refresh')
+    access_token = create_access_token(config=config, user=user)
+    token = JWT(access_token=access_token, refresh_token="refresh")
     resp = UserRegisterResp(user_id=user.id, jwt=token)
 
     return resp
 
 
-@app_auth.post('/users/login', response_model=UserLoginResp)
+@app_auth.post("/users/login", response_model=UserLoginResp)
 async def login_user(login_req: UserLoginReq):
     try:
-        user = db.login_user(login_req, hash_password(login_req.password, config.BackendConfig.password_salt))
+        user = db.login_user(
+            login_req,
+            hash_password(login_req.password, config.BackendConfig.password_salt),
+        )
     except UserNotFound as e:
         logging.error(e)
         raise HTTPException(status_code=404, detail="User not found")
@@ -175,32 +170,28 @@ async def login_user(login_req: UserLoginReq):
         logging.error(e)
         raise HTTPException(status_code=500)
 
-    access_token = create_access_token(
-        config=config,
-        user=user
-    )
-    token = JWT(access_token=access_token, refresh_token='refresh')
+    access_token = create_access_token(config=config, user=user)
+    token = JWT(access_token=access_token, refresh_token="refresh")
     resp = UserRegisterResp(user_id=user.id, jwt=token)
 
     return resp
 
 
-# @app_auth.post('/users/change_password', response_model=UserLoginResp)
-# async def login_user(login_req: ChangePasswordReq):
-#     try:
-#         user = db.login_user(login_req, hash_password(login_req.password, config.BackendConfig.password_salt))
-#     except UserNotFound as e:
-#         logging.error(e)
-#         raise HTTPException(status_code=404, detail="User not found")
-#     except Exception as e:
-#         logging.error(e)
-#         raise HTTPException(status_code=500)
-#
-#     access_token = create_access_token(
-#         config=config,
-#         user=user
-#     )
-#     token = JWT(access_token=access_token, refresh_token='refresh')
-#     resp = UserRegisterResp(user_id=user.id, jwt=token)
-#
-#     return resp
+@app_auth.post("/users/change_password")
+async def change_user_password(req: ChangePasswordReq):
+    try:
+        old_password_hash = hash_password(
+            req.old_password, config.BackendConfig.password_salt
+        )
+        new_password_hash = hash_password(
+            req.new_password, config.BackendConfig.password_salt
+        )
+        db.change_password(req.user_id, old_password_hash, new_password_hash)
+    except UserNotFound as e:
+        logging.error(e)
+        raise HTTPException(status_code=404, detail="User not found")
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=500)
+
+    return Response(status_code=200)
