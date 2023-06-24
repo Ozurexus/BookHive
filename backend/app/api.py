@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException, Header, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 from time import sleep
 
@@ -68,7 +69,11 @@ class AuthMiddleware(BaseHTTPMiddleware):
 # ------------------------------------FAST_API------------------------------------
 app = FastAPI()
 app.add_middleware(
-    TrustedHostMiddleware, allowed_hosts=["*"]
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app_auth = FastAPI(openapi_prefix="/auth")
@@ -178,3 +183,24 @@ async def login_user(login_req: UserLoginReq):
     resp = UserRegisterResp(user_id=user.id, jwt=token)
 
     return resp
+
+
+# @app_auth.post('/users/change_password', response_model=UserLoginResp)
+# async def login_user(login_req: ChangePasswordReq):
+#     try:
+#         user = db.login_user(login_req, hash_password(login_req.password, config.BackendConfig.password_salt))
+#     except UserNotFound as e:
+#         logging.error(e)
+#         raise HTTPException(status_code=404, detail="User not found")
+#     except Exception as e:
+#         logging.error(e)
+#         raise HTTPException(status_code=500)
+#
+#     access_token = create_access_token(
+#         config=config,
+#         user=user
+#     )
+#     token = JWT(access_token=access_token, refresh_token='refresh')
+#     resp = UserRegisterResp(user_id=user.id, jwt=token)
+#
+#     return resp

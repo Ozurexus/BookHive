@@ -152,6 +152,19 @@ class DB:
         password_hash = str(data[2])
         return User(id=user_id, login=login, password_hash=password_hash)
 
+    def change_password(self, user: UserLoginReq, pass_hash: str) -> User:
+        query = """SELECT * FROM users WHERE login=%s AND password_hash=%s"""
+        self.cur.execute(query, (user.login, pass_hash))
+        dst = self.cur.fetchall()
+        if not len(dst):
+            raise UserNotFound
+
+        data = dst[0]
+        user_id = int(data[0])
+        login = str(data[1])
+        password_hash = str(data[2])
+        return User(id=user_id, login=login, password_hash=password_hash)
+
 
 def fetch_annotation_and_genre(isbn):
     logging.debug("take_annotation_and_genre")

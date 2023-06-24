@@ -75,3 +75,9 @@ class UserLoginReq(BaseModel):
 class UserLoginResp(BaseModel):
     user_id: int
     jwt: JWT
+
+
+class ChangePasswordReq(BaseModel):
+    user_id: int
+    old_password: str
+    new_password: str
