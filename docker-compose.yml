@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  db_postgres:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: bookhive
+    ports:
+      - "5432:5432"
+    volumes:
+      - bookhive-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d bookhive" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - mynet
+    build:
+      context: ./postgres
+      dockerfile: ./Dockerfile
+      shm_size: 256mb
+    shm_size: 512mb
+  setup:
+    build:
+      context: ./setuper
+      dockerfile: ./Dockerfile
+    networks:
+      - mynet
+    volumes:
+      - ./config.json:/app/config.json
+    depends_on:
+      db_postgres:
+        condition: service_healthy
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ./Dockerfile
+    networks:
+      - mynet
+    volumes:
+      - ./config.json:/app/config.json
+    depends_on:
+      db_postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+networks:
+  mynet:
+    driver: bridge
+
+volumes:
+  bookhive-data:

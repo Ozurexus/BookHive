@@ -1,0 +1,100 @@
+import json
+
+import csv
+import psycopg2
+
+SERVICE = "setuper"
+MIGRATION_FILE = "./migrations/migration_default.sql"
+CONFIG_PATH = "config.json"
+
+# config
+
+config_file = open(CONFIG_PATH, "r")
+config: dict = json.loads(config_file.read())
+
+db_name = config["postgres"]["database"]
+user = config["postgres"]["user"]
+password = config["postgres"]["password"]
+host = config["postgres"]["host"]
+port = config["postgres"]["port"]
+
+print("connecting to postgres...")
+conn = psycopg2.connect(
+    dbname=db_name, user=user, password=password, host=host, port=int(port)
+)
+cur = conn.cursor()
+
+
+def migrate():
+    print("making migrations...", end="")
+    migrations = open(MIGRATION_FILE, "r").read()
+    print(migrations)
+    cur.execute(migrations)
+    conn.commit()
+
+    print(" ✅")
+
+
+def dump_from_csv():
+    # books
+    books_file = "./csv/books.csv"
+    with open(books_file, "r") as file:
+        reader = csv.reader(file, delimiter=",", quotechar='"')
+        books = [row[:-1] + ["", ""] for row in reader][1:]
+        for book in books:
+            book[0] = int(book[0]) + 1
+            book[4] = int(book[4])
+        books = [tuple(book) for book in books]
+        records_list_template = ",".join(["%s"] * 11)
+        args = ",".join(
+            cur.mogrify(f"({records_list_template})", i).decode("utf-8") for i in books
+        )
+
+        insert_query = (
+            f"INSERT INTO books (id, isbn, title, author, year_of_publication, "
+            f"publisher, image_url_s, image_url_m, image_url_l, genre, annotation) "
+            f"VALUES {args}"
+        )
+
+        print("books table import...", end="")
+        cur.execute(insert_query)
+        conn.commit()
+        print(" ✅")
+
+    # users
+    users = [(i, f"login_{i}", f"password_{i}") for i in range(1, 278859)]
+    records_list_template = ",".join(["%s"] * len(users[0]))
+    args = ",".join(
+        cur.mogrify(f"({records_list_template})", i).decode("utf-8") for i in users
+    )
+    insert_query = f"INSERT INTO users (id, login, password_hash) " f"VALUES {args}"
+    print("users table import...", end="")
+    cur.execute(insert_query)
+    conn.commit()
+    print(" ✅")
+
+    books_file = "./csv/ratings.csv"
+    with open(books_file, "r") as file:
+        reader = csv.reader(file, delimiter=",", quotechar='"')
+        ratings = [row[1:] for row in reader][1:]
+        ratings = [tuple(int(r) for r in rate) for rate in ratings]
+
+        records_list_template = ",".join(["%s"] * len(ratings[0]))
+        args = ",".join(
+            cur.mogrify(f"({records_list_template})", i).decode("utf-8")
+            for i in ratings
+        )
+        insert_query = (
+            f"INSERT INTO ratings (user_id, rating, book_id) " f"VALUES {args}"
+        )
+        print("ratings table import...", end="")
+        cur.execute(insert_query)
+        conn.commit()
+        print(" ✅")
+
+
+if __name__ == "__main__":
+    print("starting")
+    migrate()
+    dump_from_csv()
+    print("done")
