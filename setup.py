@@ -3,6 +3,7 @@ import json
 
 DEFAULT_CONFIG_DIR = "./config"
 DEFAULT_COMPOSE_PATH = f"{DEFAULT_CONFIG_DIR}/docker-compose.tmpl"
+DEFAULT_NGINX_CONF_PATH = f"{DEFAULT_CONFIG_DIR}/nginx.conf.tmpl"
 
 
 def setup_compose():
@@ -32,14 +33,26 @@ def setup_compose():
 
     read_config_deep("", config_dict, 0)
 
+    def apply_templater(tmpl_body: str):
+        for config_key in config_vars:
+            config_val = str(config_vars.get(config_key))
+            to_replace = "{{ " + f"{config_key}" + " }}"
+            tmpl_body = tmpl_body.replace(to_replace, config_val)
+        return tmpl_body
+
+    # docker-compose.yml
     compose_tmpl = open(DEFAULT_COMPOSE_PATH, "r").read()
-    for config_key in config_vars:
-        config_val = str(config_vars.get(config_key))
-        to_replace = "{{ " + f"{config_key}" + " }}"
-        compose_tmpl = compose_tmpl.replace(to_replace, config_val)
+    compose_tmpl = apply_templater(compose_tmpl)
+
+    # nginx.conf
+    nginx_tmpl = open(DEFAULT_NGINX_CONF_PATH, "r").read()
+    nginx_tmpl = apply_templater(nginx_tmpl)
 
     with open("docker-compose.yml", "w") as compose_file:
         compose_file.write(compose_tmpl)
+
+    with open("nginx.conf", "w") as nginx_file:
+        nginx_file.write(nginx_tmpl)
 
     with open("config.json", "w") as core_config:
         core_config.write(config_file)

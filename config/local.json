@@ -17,5 +17,9 @@
   },
   "client": {
     "backend_addr": "http://127.0.0.1:8080"
+  },
+  "nginx": {
+    "listen_port": 80,
+    "server_name": "localhost"
   }
 }

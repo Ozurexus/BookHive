@@ -3,7 +3,7 @@
     "database": "bookhive",
     "user": "postgres",
     "password": "admin",
-    "host": "127.0.0.1",
+    "host": "db_postgres",
     "port": 5432
   },
   "backend": {
@@ -12,7 +12,14 @@
     "log_level": "info",
     "jwt_key": "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7",
     "algorithm": "HS256",
-    "tokenTTL": 30,
+    "tokenTTL": 180,
     "password_salt": "AvFrCfKekIogI9aK16?f!FNPF0Jcmcsbydb3p-zsVpDYlzKeEztXBIe3ZLx2aCEvBcouLXFM8p6=lUHx9W0XZli28AbQJpOXAO?fx4nzLA5/XagTF7EuiRD?OLvJ!77ruf=JU5AM2FXXnN0HB-ZTdYtm3BHdnoKKJ02kYlwCot16k6UgnOPNbx7RUDxQ4gdnCG/xAi5U/T5jn9azj-xKXIA1WjduzCWX23J41OUmLSKY/jZuluX5CfWnK5JphISh"
+  },
+  "client": {
+    "backend_addr": "http://127.0.0.1:8080"
+  },
+  "nginx": {
+    "listen_port": 80,
+    "server_name": "localhost"
   }
 }
