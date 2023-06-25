@@ -1,0 +1,11 @@
+.dropdown {
+    margin: 10px;
+    width: 60%;
+}
+
+.dropdownItem {
+    display: flex;
+    justify-content: space-between;
+    background-color: white;
+    padding: 5px 5%;
+}

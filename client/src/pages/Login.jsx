@@ -3,20 +3,44 @@ import {Link, useNavigate} from "react-router-dom";
 import MyInput from "../components/UI/Input/MyInput";
 import MyButton from "../components/UI/Button/MyButton";
 import styles from '../styles/Modal.module.css'
-import {AuthContext} from "../context";
+import {AuthContext, BackAddr} from "../context";
 
 const Login = () => {
-    const {isAuth, setIsAuth} = useContext(AuthContext);
+    const {setIsAuth, setUserId, setAccessToken} = useContext(AuthContext);
     const [user, setUser] = useState({login: '', password: ''});
-
     const navigate = useNavigate();
+    const backAddr = useContext(BackAddr);
 
     const login = event => {
         event.preventDefault()
-        setIsAuth(true);
-        console.log(isAuth);
-        localStorage.setItem('auth', 'true');
-        navigate('/welcome');
+
+        const url = `${backAddr}/auth/users/login`;
+        fetch(url, {
+            method: "POST",
+            headers: {
+                'accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(user)
+        })
+            .then(resp => resp.json())
+            .then(user => {
+                if(user.detail) {
+                    alert("Wrong user");
+                    setUser({login: '', password: ''});
+                } else {
+                    setUserId(user['user_id']);
+                    setAccessToken(user['jwt']['access_token']);
+                    setIsAuth(true);
+
+                    localStorage.setItem('userId', `${user['user_id']}`);
+                    localStorage.setItem('accessToken', `${user['jwt']['access_token']}`);
+                    localStorage.setItem('auth', 'true');
+
+                    navigate('/welcome');
+                }
+            })
+            .catch(err => console.log(err));
     }
 
     return (

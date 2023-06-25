@@ -1,5 +1,4 @@
-import React, {useContext, useState} from "react";
-
+import React, {useContext} from "react";
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Welcome from '../pages/Welcome';
@@ -24,8 +23,8 @@ const AppRouter = () => {
         {path: "/register", component: <Register/>},
         {path: "*", component: <Navigate to='/login' replace={true}/>},
     ]
-    if(isLoading)
-        return <Loader />
+    if (isLoading)
+        return <Loader/>
 
     return (
         isAuth

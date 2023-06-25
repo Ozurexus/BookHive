@@ -1,4 +1,5 @@
 .modal {
+    justify-content: center;
     width: 60%;
     background-color: yellow;
     border-radius: 10px;

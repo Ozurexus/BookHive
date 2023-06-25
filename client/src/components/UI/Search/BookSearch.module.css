@@ -1,0 +1,6 @@
+.bookSearch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: black;
+}
