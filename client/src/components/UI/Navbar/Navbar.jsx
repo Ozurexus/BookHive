@@ -1,10 +1,8 @@
 import React, {useContext} from "react";
 import {Link} from "react-router-dom";
 import style from './Navbar.module.css'
-import MyInput from "../Input/MyInput";
 import MyButton from "../Button/MyButton";
 import {AuthContext} from "../../../context";
-import Dropdown from "../Dropdown/Dropdown";
 import BookSearch from "../Search/BookSearch";
 
 const Navbar = () => {
