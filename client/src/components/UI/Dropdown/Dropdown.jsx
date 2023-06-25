@@ -38,7 +38,7 @@ function Dropdown({booksArr}) {
                 rateBook(pickedBook.bookId, pickedRate, userId, accessToken)
                     .then(resp => console.log(resp));
             }}>
-                <img src={pickedBook.image_link_small}/>
+                <img src={pickedBook.image_link_small} alt={'book image'}/>
                 <p>{pickedBook.title}</p>
                 <p>by {pickedBook.author}</p>
                 <Rating

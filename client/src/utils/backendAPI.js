@@ -57,3 +57,16 @@ export const rateBook = (bookId, newRate, userId, accessToken) => {
     })
         .catch(err => console.log(err))
 }
+
+export const getRatedBooks = (userId, accessToken) => {
+    return fetch(`${backAddr}/api/get_rated_books/${userId}`, {
+        method: "GET",
+        headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        }
+    })
+        .then(resp => resp.json())
+        .catch(err => console.log(err));
+}
