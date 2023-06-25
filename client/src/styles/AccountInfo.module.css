@@ -1,0 +1,49 @@
+.accountInfo {
+    display: grid;
+    grid-template-rows: 75% 18% 7%;
+    align-items: center;
+    height: 100%;
+}
+.chPassBtn{
+    justify-self: center;
+    align-self: center;
+}
+.status {
+    font-size: 45px;
+    align-self: center;
+    justify-self: center;
+    background-color: hotpink;
+    margin-bottom: 30px;
+}
+
+.accountInfoWithoutStatus {
+    display: grid;
+    grid-template-columns: 30% 70%;
+    align-content: center;
+    align-items: center;
+    height: 100%;
+    margin-left: 50px;
+}
+
+.avatar {
+    display: flex;
+    align-items: center;
+    background-color: darkred;
+    justify-self: center;
+    margin: 10px
+}
+
+.info {
+    display: grid;
+    align-content: center;
+    justify-self: center;
+    background-color: coral;
+}
+
+.name {
+    font-size: 35px;
+}
+
+.n_reviewed {
+    font-size: 15px;
+}
