@@ -1,9 +1,9 @@
 import logging
-from typing import List
+import time
 
 import psycopg2
-import requests
 
+from util import fetch_annotation_and_genre
 from config import Postgres
 from models import *
 
@@ -16,7 +16,7 @@ class UserAlreadyExists(Exception):
     pass
 
 
-class UserNotFound(Exception):
+class NotFound(Exception):
     pass
 
 
@@ -33,25 +33,38 @@ class DB:
         self.cur = self.conn.cursor()
         logging.info("connected!")
 
-    def update_annotation_and_genre(self, book_id, annotation, genre):
-        update_query = """UPDATE books
-                        SET annotation = %s, genre = %s
-                        WHERE id = %s"""
-        self.cur.execute(update_query, (annotation, genre, book_id))
-        self.conn.commit()
-        logging.debug("annotation and genre updated!")
+    def map_user_book_wishes(self, books: List[BookExt], user_id: int) -> List[BookExt]:
+        query = """SELECT book_id FROM books_wishes WHERE user_id=%s"""
+        self.cur.execute(query, (user_id,))
+        dst = self.cur.fetchall()
 
-    def get_user_recommended_books(self, user_id) -> List[Book]:
-        select_query = """
-            SELECT b.id, isbn, title, author, year_of_publication, publisher, image_url_s, image_url_m, image_url_l, genre, annotation
-            FROM books b
-                     JOIN ratings r ON b.id = r.book_id
-            WHERE r.user_id = %s
-        """
-        books: List[Book] = []
-        self.cur.execute(select_query, (user_id,))
-        for book in self.cur.fetchall():
-            book_model: Book = Book(
+        books_ids = set()
+        for book_id in dst:
+            books_ids.add(book_id[0])
+
+        # mapping
+        for book in books:
+            book.want_to_read = book.id in books_ids
+
+        return books
+
+    def map_ratings_book(self, books: List[BookExt], user_id: int) -> List[BookExt]:
+        query = """SELECT rating, book_id FROM ratings WHERE user_id=%s"""
+        self.cur.execute(query, (user_id,))
+        dst = self.cur.fetchall()
+
+        for r in dst:
+            rating = r[0]
+            book_id = r[1]
+            for book in books:
+                if book.id == book_id:
+                    book.rating = rating
+        return books
+
+    def parse_books_ext_from_db(self, fetchall, user_id: int, need_ratings=False) -> List[BookExt]:
+        books: List[BookExt] = []
+        for book in fetchall:
+            book_model: BookExt = BookExt(
                 id=int(book[0]),
                 isbn=book[1],
                 title=book[2],
@@ -63,18 +76,45 @@ class DB:
                 image_url_l=book[8],
                 genre=book[9],
                 annotation=book[10],
+                rating=None,
+                want_to_read=None,
             )
+            if len(book) >= 12:
+                book_model.rating = book[11]
 
             if book_model.genre == "" and book_model.annotation == "":
                 annotation, genre = fetch_annotation_and_genre(book_model.isbn)
                 book_model.annotation = annotation
                 book_model.genre = genre
                 self.update_annotation_and_genre(book_model.id, annotation, genre)
+                time.sleep(0.5)  # TODO: подумать насчет этого
             books.append(book_model)
-        return books
+
+        if need_ratings:
+            books = self.map_ratings_book(books, user_id)
+        return self.map_user_book_wishes(books, user_id)
+
+    def update_annotation_and_genre(self, book_id, annotation, genre):
+        update_query = """UPDATE books
+                        SET annotation = %s, genre = %s
+                        WHERE id = %s"""
+        self.cur.execute(update_query, (annotation, genre, book_id))
+        self.conn.commit()
+        logging.debug("annotation and genre updated!")
+
+    def get_user_recommended_books(self, user_id) -> List[BookExt]:
+        select_query = """
+            SELECT b.id, isbn, title, author, year_of_publication, publisher, image_url_s, 
+                    image_url_m, image_url_l, genre, annotation, r.rating
+            FROM books b
+                     JOIN ratings r ON b.id = r.book_id
+            WHERE r.user_id = %s
+        """
+        self.cur.execute(select_query, (user_id,))
+        return self.parse_books_ext_from_db(self.cur.fetchall(), user_id)
 
     def find_books_by_title_pattern(
-        self, pattern: str, limit: int = 0
+            self, pattern: str, limit: int = 0
     ) -> List[BooksByPatternItem]:
         query = """SELECT id, title, author, image_url_s 
         FROM books WHERE LOWER(title) LIKE (%s)
@@ -99,6 +139,16 @@ class DB:
         return dst
 
     def rate_book(self, rate_req: RateReq):
+        # checking whether already exists
+        check_query = """SELECT 1 FROM ratings WHERE user_id = %s AND book_id = %s"""
+        self.cur.execute(check_query, (rate_req.user_id, rate_req.book_id))
+        if len(self.cur.fetchall()) > 0:
+            update_query = """UPDATE ratings SET rating=%s WHERE user_id=%s AND book_id=%s"""
+            self.cur.execute(update_query, (rate_req.rate, rate_req.user_id, rate_req.book_id))
+            self.conn.commit()
+            return
+
+        # if no just insert
         query = """INSERT INTO ratings (user_id, book_id, rating) 
                     VALUES (%s, %s, %s) """
         try:
@@ -106,18 +156,6 @@ class DB:
             self.conn.commit()
         except psycopg2.errors.ForeignKeyViolation:
             raise ConstraintError
-
-    def get_books_ids_by_user(self, user_id: int):
-        query = """SELECT book_id 
-                        FROM ratings 
-                        WHERE user_id = %s"""
-        self.cur.execute(query, (user_id,))
-        data = self.cur.fetchall()
-        books_ids = []
-        for book_id in data:
-            books_ids.append(book_id[0])
-
-        return books_ids
 
     def register_user(self, user: UserRegisterReq, pass_hash: str) -> User:
         query = """SELECT * FROM users WHERE login=%s AND password_hash=%s"""
@@ -144,7 +182,7 @@ class DB:
         self.cur.execute(query, (user.login, pass_hash))
         dst = self.cur.fetchall()
         if not len(dst):
-            raise UserNotFound
+            raise NotFound
 
         data = dst[0]
         user_id = int(data[0])
@@ -157,37 +195,51 @@ class DB:
         self.cur.execute(query, (old_password, user_id))
         dst = self.cur.fetchall()
         if not len(dst):
-            raise UserNotFound
+            raise NotFound
 
         query_update = """UPDATE users SET password_hash=%s WHERE id=%s"""
         self.cur.execute(query_update, (new_password, user_id))
         self.conn.commit()
 
+    def wish_unwish_book(self, req: WantToReadBookReq):
+        # checking whether already exists
+        check_query = """SELECT 1 FROM books_wishes WHERE user_id = %s AND book_id = %s"""
+        self.cur.execute(check_query, (req.user_id, req.book_id))
+        if len(self.cur.fetchall()) > 0:
+            delete_query = """DELETE FROM books_wishes WHERE user_id=%s AND book_id=%s"""
+            self.cur.execute(delete_query, (req.user_id, req.book_id))
+            self.conn.commit()
+            return
 
-def fetch_annotation_and_genre(isbn):
-    logging.debug("take_annotation_and_genre")
-    base_url = "https://www.googleapis.com/books/v1"
-    search_url = f"{base_url}/volumes?q=isbn:{isbn}"
-    response = requests.get(search_url)
-    response.raise_for_status()
-    result = response.json()["items"][0]
-    book_id = result["id"]
-    book_url = f"{base_url}/volumes/{book_id}"
-    response = requests.get(book_url)
-    response.raise_for_status()
-    book = response.json()
-    try:
-        annotation = book["volumeInfo"]["description"]
-    except Exception:
         try:
-            annotation = book["description"]
-        except Exception:
-            annotation = ""
-    try:
-        genre = book["volumeInfo"]["categories"][0]
-    except Exception:
-        try:
-            genre = book["categories"][0]
-        except Exception:
-            genre = ""
-    return annotation, genre
+            query = """INSERT INTO books_wishes (user_id, book_id) VALUES (%s, %s)"""
+            self.cur.execute(query, (req.user_id, req.book_id))
+            self.conn.commit()
+        except psycopg2.errors.ForeignKeyViolation:
+            raise ConstraintError
+
+    def get_user_favorite_books(self, user_id) -> List[Book]:
+        query = """SELECT b.id,
+                       b.isbn,
+                       b.title,
+                       b.author,
+                       b.year_of_publication,
+                       b.publisher,
+                       b.image_url_s,
+                       b.image_url_m,
+                       b.image_url_l,
+                       b.genre,
+                       b.annotation
+                FROM books_wishes fb
+                         JOIN books b on b.id = fb.book_id
+                WHERE fb.user_id = %s"""
+
+        self.cur.execute(query, (user_id,))
+        return self.parse_books_ext_from_db(self.cur.fetchall(), user_id, need_ratings=True)
+
+    def get_user_reviewed_books_num(self, user_id) -> int:
+        query = """SELECT COUNT(*) FROM ratings WHERE user_id = %s"""
+        self.cur.execute(query, (user_id,))
+
+        dst = self.cur.fetchall()
+        return dst[0][0]
