@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS books
     annotation          TEXT
 );
 CREATE INDEX IF NOT EXISTS books_isbn_idx ON books USING btree (isbn);
+CREATE INDEX IF NOT EXISTS books_title_idx ON books USING btree (title);
 
 CREATE TABLE IF NOT EXISTS users
 (

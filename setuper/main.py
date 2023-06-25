@@ -50,16 +50,19 @@ def dump_from_csv():
             cur.mogrify(f"({records_list_template})", i).decode("utf-8") for i in books
         )
 
-        insert_query = (
-            f"INSERT INTO books (id, isbn, title, author, year_of_publication, "
-            f"publisher, image_url_s, image_url_m, image_url_l, genre, annotation) "
+        insert_query = f"INSERT INTO books (id, isbn, title, author, year_of_publication, " + \
+            f"publisher, image_url_s, image_url_m, image_url_l, genre, annotation) " + \
             f"VALUES {args}"
-        )
 
-        print("books table import...", end="")
-        cur.execute(insert_query)
-        conn.commit()
-        print(" ✅")
+        try:
+            print("books table import...", end=" ")
+            cur.execute(insert_query)
+            conn.commit()
+        except psycopg2.errors.UniqueViolation:
+            conn.rollback()
+            print("⚠️  seems data is already imported - rollback")
+        else:
+            print(" ✅")
 
     # users
     users = [(i, f"login_{i}", f"password_{i}") for i in range(1, 278859)]
@@ -68,10 +71,15 @@ def dump_from_csv():
         cur.mogrify(f"({records_list_template})", i).decode("utf-8") for i in users
     )
     insert_query = f"INSERT INTO users (id, login, password_hash) " f"VALUES {args}"
-    print("users table import...", end="")
-    cur.execute(insert_query)
-    conn.commit()
-    print(" ✅")
+    try:
+        print("users table import...", end=" ")
+        cur.execute(insert_query)
+        conn.commit()
+    except psycopg2.errors.UniqueViolation:
+        conn.rollback()
+        print("⚠️  seems data is already imported - rollback")
+    else:
+        print(" ✅")
 
     books_file = "./csv/ratings.csv"
     with open(books_file, "r") as file:
@@ -87,14 +95,19 @@ def dump_from_csv():
         insert_query = (
             f"INSERT INTO ratings (user_id, rating, book_id) " f"VALUES {args}"
         )
-        print("ratings table import...", end="")
-        cur.execute(insert_query)
-        conn.commit()
-        print(" ✅")
+        try:
+            print("ratings table import...", end=" ")
+            cur.execute(insert_query)
+            conn.commit()
+        except psycopg2.errors.UniqueViolation:
+            print("⚠️  seems data is already imported - rollback")
+            conn.rollback()
+        else:
+            print(" ✅")
 
 
 if __name__ == "__main__":
     print("starting")
     migrate()
     dump_from_csv()
-    print("done")
+    print(" ✅")

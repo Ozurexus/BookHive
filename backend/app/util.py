@@ -8,29 +8,22 @@ def fetch_annotation_and_genre(isbn):
     search_url = f"{base_url}/volumes?q=isbn:{isbn}"
     response = requests.get(search_url)
     response.raise_for_status()
+
     try:
-        result = response.json()["items"][0]
-        book_id = result["id"]
-        book_url = f"{base_url}/volumes/{book_id}"
-        response = requests.get(book_url)
-        response.raise_for_status()
-        book = response.json()
-    except Exception as e:
+        book = response.json()["items"][0]
+    except Exception:
         return "", ""
+
     try:
         annotation = book["volumeInfo"]["description"]
     except Exception:
-        try:
-            annotation = book["description"]
-        except Exception:
-            annotation = ""
+        annotation = ""
+
     try:
         genre = book["volumeInfo"]["categories"][0]
+        genre = genre.split(" / ")[0]
     except Exception:
-        try:
-            genre = book["categories"][0]
-        except Exception:
-            genre = ""
+        genre = ""
     return annotation, genre
 
 

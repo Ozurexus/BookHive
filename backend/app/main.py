@@ -1,6 +1,7 @@
 import logging
 
 import uvicorn
+
 from config import get_config
 
 if __name__ == "__main__":

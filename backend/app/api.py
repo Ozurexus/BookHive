@@ -83,7 +83,7 @@ async def ping():
     return PongResponse(message="pong")
 
 
-# ------------------------------------CONFIG_DB------------------------------------
+# ------------------------------------CONFIG+DB------------------------------------
 config = get_config()
 db = DB(config.PostgresConfig)
 
@@ -136,6 +136,7 @@ async def books_rate(rate_req: RateReq):
         logging.error(e)
         raise HTTPException(status_code=500)
     return JSONResponse(200)
+
 
 @app_api.post("/books/wish/")
 async def wish_un_wish_book(rate_req: WantToReadBookReq):
@@ -191,7 +192,10 @@ async def register_user(register_req: UserRegisterReq):
         )
     except UserAlreadyExists as e:
         logging.error(e)
-        raise HTTPException(status_code=409, detail="User already exists")
+        raise HTTPException(
+            status_code=409,
+            detail="User with such login already exists: try choose another login",
+        )
     except Exception as e:
         logging.error(e)
         raise HTTPException(status_code=500)

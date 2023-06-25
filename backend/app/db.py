@@ -6,6 +6,7 @@ import psycopg2
 from util import fetch_annotation_and_genre
 from config import Postgres
 from models import *
+from mocks import *
 
 
 class ConstraintError(Exception):
@@ -61,7 +62,9 @@ class DB:
                     book.rating = rating
         return books
 
-    def parse_books_ext_from_db(self, fetchall, user_id: int, need_ratings=False) -> List[BookExt]:
+    def parse_books_ext_from_db(
+        self, fetchall, user_id: int, need_ratings=False
+    ) -> List[BookExt]:
         books: List[BookExt] = []
         for book in fetchall:
             book_model: BookExt = BookExt(
@@ -84,6 +87,12 @@ class DB:
 
             if book_model.genre == "" and book_model.annotation == "":
                 annotation, genre = fetch_annotation_and_genre(book_model.isbn)
+                if annotation == "":
+                    annotation = get_default_annotation()
+
+                if genre == "":
+                    genre = get_default_genre()
+
                 book_model.annotation = annotation
                 book_model.genre = genre
                 self.update_annotation_and_genre(book_model.id, annotation, genre)
@@ -114,7 +123,7 @@ class DB:
         return self.parse_books_ext_from_db(self.cur.fetchall(), user_id)
 
     def find_books_by_title_pattern(
-            self, pattern: str, limit: int = 0
+        self, pattern: str, limit: int = 0
     ) -> List[BooksByPatternItem]:
         query = """SELECT id, title, author, image_url_s 
         FROM books WHERE LOWER(title) LIKE (%s)
@@ -143,8 +152,12 @@ class DB:
         check_query = """SELECT 1 FROM ratings WHERE user_id = %s AND book_id = %s"""
         self.cur.execute(check_query, (rate_req.user_id, rate_req.book_id))
         if len(self.cur.fetchall()) > 0:
-            update_query = """UPDATE ratings SET rating=%s WHERE user_id=%s AND book_id=%s"""
-            self.cur.execute(update_query, (rate_req.rate, rate_req.user_id, rate_req.book_id))
+            update_query = (
+                """UPDATE ratings SET rating=%s WHERE user_id=%s AND book_id=%s"""
+            )
+            self.cur.execute(
+                update_query, (rate_req.rate, rate_req.user_id, rate_req.book_id)
+            )
             self.conn.commit()
             return
 
@@ -158,8 +171,8 @@ class DB:
             raise ConstraintError
 
     def register_user(self, user: UserRegisterReq, pass_hash: str) -> User:
-        query = """SELECT * FROM users WHERE login=%s AND password_hash=%s"""
-        self.cur.execute(query, (user.login, pass_hash))
+        query = """SELECT * FROM users WHERE login=%s"""
+        self.cur.execute(query, (user.login,))
         if len(self.cur.fetchall()):
             raise UserAlreadyExists
 
@@ -203,10 +216,14 @@ class DB:
 
     def wish_unwish_book(self, req: WantToReadBookReq):
         # checking whether already exists
-        check_query = """SELECT 1 FROM books_wishes WHERE user_id = %s AND book_id = %s"""
+        check_query = (
+            """SELECT 1 FROM books_wishes WHERE user_id = %s AND book_id = %s"""
+        )
         self.cur.execute(check_query, (req.user_id, req.book_id))
         if len(self.cur.fetchall()) > 0:
-            delete_query = """DELETE FROM books_wishes WHERE user_id=%s AND book_id=%s"""
+            delete_query = (
+                """DELETE FROM books_wishes WHERE user_id=%s AND book_id=%s"""
+            )
             self.cur.execute(delete_query, (req.user_id, req.book_id))
             self.conn.commit()
             return
@@ -235,7 +252,9 @@ class DB:
                 WHERE fb.user_id = %s"""
 
         self.cur.execute(query, (user_id,))
-        return self.parse_books_ext_from_db(self.cur.fetchall(), user_id, need_ratings=True)
+        return self.parse_books_ext_from_db(
+            self.cur.fetchall(), user_id, need_ratings=True
+        )
 
     def get_user_reviewed_books_num(self, user_id) -> int:
         query = """SELECT COUNT(*) FROM ratings WHERE user_id = %s"""
