@@ -4,7 +4,7 @@ import Navbar from "../components/UI/Navbar/Navbar";
 
 const Recommendations = () => {
     return (
-        <div>
+        <div className={'page'}>
             <Navbar></Navbar>
         </div>
     )

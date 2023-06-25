@@ -1,11 +1,33 @@
 .dropdown {
-    margin: 10px;
     width: 60%;
+    position: relative;
+    display: inline-block;
 }
 
+.dropdownContent {
+    border-radius: 5px;
+    display: block;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 12px 16px;
+    max-height: 500px;
+    overflow-y: scroll;
+    z-index: 1;
+}
 .dropdownItem {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
     display: flex;
     justify-content: space-between;
-    background-color: white;
-    padding: 5px 5%;
+    align-content: center;
 }
+.dropdownItem p {
+    align-self: center;
+}
+.dropdownContent div:hover {
+    background-color: #f1f1f1;
+}
+

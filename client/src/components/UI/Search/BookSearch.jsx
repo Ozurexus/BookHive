@@ -3,16 +3,18 @@ import MyInput from "../Input/MyInput";
 import Dropdown from "../Dropdown/Dropdown";
 import {AuthContext, BackAddr} from "../../../context";
 import style from './BookSearch.module.css'
+import useLocalStorage from "../../../hooks/useLocalStorage";
 
 function BookSearch({placeholder}) {
     const [bookName, setBookName] = useState('');
     const [booksArr, setBooksArr] = useState([]);
     const backAddr = useContext(BackAddr);
     const {accessToken} = useContext(AuthContext);
+    //const [accessToken, ] = useLocalStorage('accessToken', '');
     const getBooks = (e) => {
         const newName = e.target.value
-        setBookName(newName);
         const url = `${backAddr}/api/books/find/`
+        setBookName(newName);
         fetch(url + '?' + new URLSearchParams({pattern: newName.toLowerCase(), limit: 10}), {
             method: "GET",
             headers: {
@@ -28,7 +30,12 @@ function BookSearch({placeholder}) {
     return (
         <div className={style.bookSearch} >
             <MyInput placeholder={placeholder} onChange={getBooks} value={bookName}></MyInput>
-            <Dropdown booksArr={booksArr}/>
+            {bookName
+                ?
+                <Dropdown booksArr={booksArr}/>
+                :
+                <> </>
+            }
         </div>
     );
 }

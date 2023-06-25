@@ -3,7 +3,7 @@ import Navbar from "../components/UI/Navbar/Navbar";
 
 const MyBooks = () => {
     return(
-        <div>
+        <div className={'page'}>
             <Navbar/>
         </div>
     )
