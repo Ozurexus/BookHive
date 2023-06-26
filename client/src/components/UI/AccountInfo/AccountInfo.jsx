@@ -1,11 +1,12 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {Avatar} from "@mui/material";
 import style from "../../../styles/AccountInfo.module.css";
+import {UserContext} from "../../../context";
 
 
 function AccountInfo(props) {
+    const {books} = useContext(UserContext);
     let name = "Marat Bulatov";
-    let booksreviewed = 5;
     let status = "Cool guy";
     return (<div className={style.accountInfo}>
             <div className={style.accountInfoWithoutStatus}>
@@ -17,7 +18,7 @@ function AccountInfo(props) {
                         <p>{name}</p>
                     </div>
                     <div className={style.n_reviewed}>
-                        <p>Books reviewed: {booksreviewed}</p>
+                        <p>Books reviewed: {books.length}</p>
                     </div>
                 </div>
             </div>

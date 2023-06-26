@@ -9,7 +9,6 @@ function BookSearch({placeholder}) {
     const [bookName, setBookName] = useState('');
     const [booksArr, setBooksArr] = useState([]);
     const {accessToken} = useContext(AuthContext);
-    //const [accessToken, ] = useLocalStorage('accessToken', '');
 
     return (
         <div className={style.bookSearch}>
