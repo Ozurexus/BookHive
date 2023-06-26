@@ -1,22 +1,46 @@
 .modal {
     justify-content: center;
-    width: 60%;
+    width: 50%;
+    height: 50vh;
     background: linear-gradient(rgb(255, 153, 1), rgb(255, 201, 41));
     border-radius: 10px;
-    padding: 20px;
-    margin: 100px 0px;
+    padding: 50px;
+    margin-top: 25vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 300px;
+    min-height: 400px;
 }
 .h1{
     color: white;
+    font-size: 4em;
+}
+.p{
+    color: white;
+    justify-self: center;
+
+}
+.regBtn{
+    color: white;
+    text-decoration: none;
+    justify-self: flex-end;
 }
 .modalForm {
     width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 10px 0px;
+}
+.logInBtn{
+    margin-top: 20px;
+    padding: 10px 60px;
+    background-color: rgb(255, 152, 0);
+    color: white;
+    box-shadow: 5px 4px 3px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border: none;
+    border-radius: 20px;
+    font-size: 1.5em;
+    cursor: pointer;
 }

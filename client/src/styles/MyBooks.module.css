@@ -45,6 +45,6 @@
     justify-content: center;
 }
 .booksgrid{
- background-color: red;
-
+    overflow: auto;
 }
+
