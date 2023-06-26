@@ -10,7 +10,7 @@ function AccountInfo(props) {
     return (<div className={style.accountInfo}>
             <div className={style.accountInfoWithoutStatus}>
                 <div className={style.avatar}>
-                    <Avatar alt="Remy Sharp" src="../Search/logo512.png" sx={{width: 140, height: 140}}/>
+                    <Avatar alt="Remy Sharp" src="../Search/logo512.png" sx={{width: 90, height: 90}}/>
                 </div>
                 <div className={style.info}>
                     <div className={style.name}>
