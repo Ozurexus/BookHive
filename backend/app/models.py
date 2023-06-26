@@ -47,6 +47,11 @@ class RateReq(BaseModel):
     user_id: int
 
 
+class UnRateReq(BaseModel):
+    book_id: int
+    user_id: int
+
+
 class User(BaseModel):
     id: int
     login: str

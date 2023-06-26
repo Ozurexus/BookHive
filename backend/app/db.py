@@ -170,6 +170,21 @@ class DB:
         except psycopg2.errors.ForeignKeyViolation:
             raise ConstraintError
 
+    def un_rate_book(self, rate_req: UnRateReq):
+        # checking whether already exists
+        check_query = """SELECT 1 FROM ratings WHERE user_id = %s AND book_id = %s"""
+        self.cur.execute(check_query, (rate_req.user_id, rate_req.book_id))
+        if len(self.cur.fetchall()) == 0:
+            return
+
+        # if no just insert
+        query = """DELETE FROM ratings WHERE user_id=%s, book_id=%s"""
+        try:
+            self.cur.execute(query, (rate_req.user_id, rate_req.book_id))
+            self.conn.commit()
+        except psycopg2.errors.ForeignKeyViolation:
+            raise ConstraintError
+
     def register_user(self, user: UserRegisterReq, pass_hash: str) -> User:
         query = """SELECT * FROM users WHERE login=%s"""
         self.cur.execute(query, (user.login,))

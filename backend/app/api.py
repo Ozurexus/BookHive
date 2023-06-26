@@ -22,9 +22,9 @@ WHITE_LIST_URLS = ["/api/docs", "/api/ping", "/api/openapi.json"]
 
 class AuthMiddleware(BaseHTTPMiddleware):
     def __init__(
-        self,
-        app,
-        some_attribute: str,
+            self,
+            app,
+            some_attribute: str,
     ):
         super().__init__(app)
         self.some_attribute = some_attribute
@@ -129,6 +129,19 @@ async def books_find_by_pattern(pattern: str = "", limit: int = 0):
 async def books_rate(rate_req: RateReq):
     try:
         db.rate_book(rate_req)
+    except ConstraintError as e:
+        logging.error(e)
+        raise HTTPException(status_code=400, detail="Invalid request body (fix it)")
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=500)
+    return JSONResponse(200)
+
+
+@app_api.post("/books/unrate")
+async def books_rate(rate_req: UnRateReq):
+    try:
+        db.un_rate_book(rate_req)
     except ConstraintError as e:
         logging.error(e)
         raise HTTPException(status_code=400, detail="Invalid request body (fix it)")
