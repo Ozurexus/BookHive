@@ -1,9 +1,10 @@
 from __future__ import annotations
-
 import hashlib
 from datetime import datetime, timedelta
+
 from jose import jwt
 from passlib.context import CryptContext
+
 from config import Config
 from models import *
 

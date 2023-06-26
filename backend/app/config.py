@@ -33,6 +33,7 @@ class Backend:
         self.algorithm: str = "HS256"
         self.tokenTTL = 30
         self.password_salt = "salt"
+        self.with_auth = True
 
 
 class Config:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -19,8 +19,13 @@ class Book(BaseModel):
     annotation: str
 
 
-class GetRatedBooksResponse(BaseModel):
-    items: List[Book]
+class BookExt(Book):
+    rating: Optional[int]
+    want_to_read: Optional[bool]
+
+
+class BooksResponse(BaseModel):
+    items: List[BookExt]
     size: int
 
 
@@ -81,3 +86,13 @@ class ChangePasswordReq(BaseModel):
     user_id: int
     old_password: str
     new_password: str
+
+
+class WantToReadBookReq(BaseModel):
+    user_id: int
+    book_id: int
+
+
+class UserStatusResponse(BaseModel):
+    status: str
+    reviewed_books: int

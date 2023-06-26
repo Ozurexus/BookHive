@@ -7,14 +7,13 @@ from fastapi.responses import JSONResponse, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 
-
 from models import *
 
 # from ml.aml import get_recs
 from db import *
 from config import get_config
 from jwt import *
-
+from util import *
 from typing import List
 
 # ------------------------------------MIDDLEWARE------------------------------------
@@ -31,6 +30,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
         self.some_attribute = some_attribute
 
     async def dispatch(self, request: Request, call_next):
+        if not config.BackendConfig.with_auth:
+            response = await call_next(request)
+            return response
+
         for white_url in WHITE_LIST_URLS:
             if request.url.path == white_url:
                 return await call_next(request)
@@ -80,7 +83,7 @@ async def ping():
     return PongResponse(message="pong")
 
 
-# ------------------------------------CONFIG_DB------------------------------------
+# ------------------------------------CONFIG+DB------------------------------------
 config = get_config()
 db = DB(config.PostgresConfig)
 
@@ -88,7 +91,7 @@ db = DB(config.PostgresConfig)
 # ------------------------------------API------------------------------------
 
 
-@app_api.get("/get_rated_books/{user_id}", response_model=GetRatedBooksResponse)
+@app_api.get("/get_rated_books/{user_id}", response_model=BooksResponse)
 async def get_rated_books(user_id):
     # getting book_ids
     try:
@@ -96,12 +99,12 @@ async def get_rated_books(user_id):
     except Exception as e:
         logging.error(e)
         raise HTTPException(status_code=500)
-    return GetRatedBooksResponse(items=books, size=len(books))
+    return BooksResponse(items=books, size=len(books))
 
 
-@app_api.get("/get_recommended_books/{user_id}_{number_of_books}")
-async def get_recommendations(user_id, number_of_books):
-    recommendations = get_recs(user_id, number_of_books)
+@app_api.get("/get_recommended_books/{user_id}")
+async def get_recommendations(user_id, limit: int = 0):
+    recommendations = get_recs(user_id, limit)
     books_info = []
     for rec in recommendations:
         book_info = db.get_book_info(rec)
@@ -132,6 +135,51 @@ async def books_rate(rate_req: RateReq):
     except Exception as e:
         logging.error(e)
         raise HTTPException(status_code=500)
+    return JSONResponse(200)
+
+
+@app_api.post("/books/wish/")
+async def wish_un_wish_book(rate_req: WantToReadBookReq):
+    """
+    If book is already wished - then removes the book from wishes.
+    Else adds the book to the wishes.
+    P.S - wish ~ want_to_read
+    """
+    try:
+        db.wish_unwish_book(rate_req)
+    except ConstraintError as e:
+        logging.error(e)
+        raise HTTPException(
+            status_code=400, detail="Invalid request body (book_id or user_id)"
+        )
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=500)
+    return JSONResponse(200)
+
+
+@app_api.get("/books/wishes/{user_id}", response_model=BooksResponse)
+async def get_user_wishes_books(user_id: int):
+    try:
+        books = db.get_user_favorite_books(user_id)
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=500)
+    resp = BooksResponse(items=books, size=len(books))
+    return resp
+
+
+@app_api.get("/user/status/{user_id}", response_model=UserStatusResponse)
+async def get_user_status(user_id: int):
+    try:
+        review_books_num = db.get_user_reviewed_books_num(user_id)
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=500)
+
+    return UserStatusResponse(
+        status=calculate_user_status(review_books_num), reviewed_books=review_books_num
+    )
 
 
 # ------------------------------------------------------AUTH------------------------------------------------------------------------
@@ -144,7 +192,10 @@ async def register_user(register_req: UserRegisterReq):
         )
     except UserAlreadyExists as e:
         logging.error(e)
-        raise HTTPException(status_code=409, detail="User already exists")
+        raise HTTPException(
+            status_code=409,
+            detail="User with such login already exists: try choose another login",
+        )
     except Exception as e:
         logging.error(e)
         raise HTTPException(status_code=500)
@@ -163,7 +214,7 @@ async def login_user(login_req: UserLoginReq):
             login_req,
             hash_password(login_req.password, config.BackendConfig.password_salt),
         )
-    except UserNotFound as e:
+    except NotFound as e:
         logging.error(e)
         raise HTTPException(status_code=404, detail="User not found")
     except Exception as e:
@@ -187,7 +238,7 @@ async def change_user_password(req: ChangePasswordReq):
             req.new_password, config.BackendConfig.password_salt
         )
         db.change_password(req.user_id, old_password_hash, new_password_hash)
-    except UserNotFound as e:
+    except NotFound as e:
         logging.error(e)
         raise HTTPException(status_code=404, detail="User not found")
     except Exception as e:
