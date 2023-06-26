@@ -1,6 +1,6 @@
 import React from "react";
 import Navbar from "../components/UI/Navbar/Navbar";
-import style from '../styles/Modal.module.css'
+import style from '../styles/Login.module.css'
 import styleWel from '../styles/Welcome.module.css'
 import BookSearch from "../components/UI/Search/BookSearch";
 

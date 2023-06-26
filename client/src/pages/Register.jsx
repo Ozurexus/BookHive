@@ -1,8 +1,8 @@
 import React, {useState} from "react";
 import MyInput from "../components/UI/Input/MyInput";
 import MyButton from "../components/UI/Button/MyButton";
-import style from '../styles/Modal.module.css'
-import styles from '../styles/Modal.module.css'
+import style from '../styles/Login.module.css'
+import styles from '../styles/Login.module.css'
 import {useNavigate} from "react-router-dom";
 import {register} from "../utils/backendAPI";
 

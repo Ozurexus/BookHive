@@ -4,6 +4,7 @@ import style from './Navbar.module.css'
 import MyButton from "../Button/MyButton";
 import {AuthContext} from "../../../context";
 import BookSearch from "../Search/BookSearch";
+import logo from "./logo.png"
 
 const Navbar = () => {
     const {setIsAuth, setAccessToken, setUserId} = useContext(AuthContext);
@@ -15,14 +16,36 @@ const Navbar = () => {
         localStorage.removeItem('userId');
         localStorage.removeItem('accessToken');
     }
-
+    const linkStyle = {
+        display: "contents",
+        textDecoration: 'none',
+        color: 'black',
+        fontWeight: "bold",
+    }
     return (
         <div className={style.navbar}>
-            <h1>BookHive</h1>
-            <Link to='/recommendations'>RECOMMENDATIONS</Link>
-            <Link to='/mybooks'>MYBOOKS</Link>
-            <BookSearch placeholder={'BookSearch books'}/>
-            <MyButton onClick={logout}>Log Out</MyButton>
+            <div className={style.logo}>
+                <img src={logo} alt="Logo?" className={style.logoimage}/>
+            </div>
+            <div className={style.header}>
+                <h1>BookHive</h1>
+            </div>
+            <div className={style.recommendations}>
+                <Link to='/recommendations' style={linkStyle}>
+                    <div className={style.link}>RECOMMENDATIONS</div>
+                </Link>
+            </div>
+            <div className={style.mybooks}>
+                <Link to='/mybooks' style={linkStyle}>
+                    <div className={style.link}>MY BOOKS</div>
+                </Link>
+            </div>
+            <div className={style.booksearch}>
+                <BookSearch placeholder={'BookSearch books'}/>
+            </div>
+            <div className={style.logout}>
+                <MyButton className={style.logoutBtn} onClick={logout}>Log Out</MyButton>
+            </div>
         </div>
     )
 }
