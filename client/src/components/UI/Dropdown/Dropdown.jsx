@@ -1,16 +1,25 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import style from './Dropdown.module.css'
 import MyButton from "../Button/MyButton";
 import MyModal from "../MyModal/MyModal";
 import {Rating} from '@mui/material';
-import {AuthContext} from "../../../context";
-import {rateBook} from "../../../utils/backendAPI";
+import {AuthContext, UserContext} from "../../../context";
+import {getRatedBooks, rateBook} from "../../../utils/backendAPI";
 
 function Dropdown({booksArr}) {
     const [modal, setModal] = useState(false);
     const [pickedBook, setPickedBook] = useState({});
     const [pickedRate, setPickedRate] = useState(0);
     const {userId, accessToken} = useContext(AuthContext);
+    const {books, setBooks} = useContext(UserContext);
+
+    useEffect(() => {
+        const oldBook = books.find((elem, ind, arr) => elem.id === pickedBook.bookId)
+        if (oldBook)
+            setPickedRate(oldBook.rating)
+        else
+            setPickedRate(0);
+    }, [pickedBook])
 
     const showBook = (book) => {
         setModal(true);
@@ -26,7 +35,7 @@ function Dropdown({booksArr}) {
             <div className={style.dropdownContent}>
                 {booksArr.map((book) =>
                     <div key={book.book_id} className={style.dropdownItem}>
-                        <img src={book.image_link_small}/>
+                        <img src={book.image_link_small} alt={'book'}/>
                         <p>{book.title}</p>
                         <p>by {book.author}</p>
                         <MyButton onClick={() => showBook(book)}>Rate</MyButton>
@@ -35,10 +44,17 @@ function Dropdown({booksArr}) {
             </div>
             <MyModal visible={modal} setVisible={() => {
                 setModal(false);
-                rateBook(pickedBook.bookId, pickedRate, userId, accessToken)
-                    .then(resp => console.log(resp));
+                if (pickedRate > 0) {
+                    rateBook(pickedBook.bookId, pickedRate, userId, accessToken)
+                        .then(resp => console.log(resp));
+                    getRatedBooks(userId, accessToken)
+                        .then((obj) => {
+                            setBooks(obj.items);
+                            console.log("")
+                        })
+                }
             }}>
-                <img src={pickedBook.image_link_small} alt={'book image'}/>
+                <img src={pickedBook.image_link_small} alt={'book'}/>
                 <p>{pickedBook.title}</p>
                 <p>by {pickedBook.author}</p>
                 <Rating

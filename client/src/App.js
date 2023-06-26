@@ -1,17 +1,17 @@
 import React from 'react';
 import {BrowserRouter} from "react-router-dom";
 import AppRouter from './components/AppRouter';
-import AuthProvider from "./context/AuthProvider";
+import ContextProvider from "./context/ContextProvider";
 import './styles/App.css'
 
 
 function App() {
     return (
-        <AuthProvider>
+        <ContextProvider>
             <BrowserRouter>
                 <AppRouter/>
             </BrowserRouter>
-        </AuthProvider>
+        </ContextProvider>
     );
 }
 
