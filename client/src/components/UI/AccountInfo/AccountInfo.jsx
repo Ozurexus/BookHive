@@ -5,8 +5,7 @@ import {UserContext} from "../../../context";
 
 
 function AccountInfo(props) {
-    const {books} = useContext(UserContext);
-    let name = "Marat Bulatov";
+    const {books, userLogin} = useContext(UserContext);
     let status = "Cool guy";
     return (<div className={style.accountInfo}>
             <div className={style.accountInfoWithoutStatus}>
@@ -15,7 +14,7 @@ function AccountInfo(props) {
                 </div>
                 <div className={style.info}>
                     <div className={style.name}>
-                        <p>{name}</p>
+                        <p>{userLogin}</p>
                     </div>
                     <div className={style.n_reviewed}>
                         <p>Books reviewed: {books.length}</p>

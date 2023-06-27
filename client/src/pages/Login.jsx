@@ -31,7 +31,10 @@ const Login = () => {
                             localStorage.setItem('auth', 'true');
                         }
                     })
-                    .then(() => navigate('/welcome'));
+                    .then(() => {
+                        localStorage.setItem('userLogin', `${user.login}`)
+                        navigate('/welcome')
+                    });
             }}>
                 <MyInput value={user.login}
                          onChange={e => setUser({

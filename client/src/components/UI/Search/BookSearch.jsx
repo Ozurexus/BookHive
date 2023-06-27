@@ -8,22 +8,18 @@ import {getBooks} from "../../../utils/backendAPI";
 function BookSearch({placeholder}) {
     const [bookName, setBookName] = useState('');
     const [booksArr, setBooksArr] = useState([]);
+    const [visible, setVisible] = useState(false);
     const {accessToken} = useContext(AuthContext);
 
     return (
-        <div className={style.bookSearch}>
+        <div className={style.bookSearch} onClick={() => setVisible(false)}>
             <MyInput placeholder={placeholder} onChange={(e) => {
                 const newName = e.target.value;
                 setBookName(newName);
                 getBooks(newName, accessToken)
                     .then(books => setBooksArr(books.items))
-            }} value={bookName}></MyInput>
-            {bookName
-                ?
-                <Dropdown booksArr={booksArr}/>
-                :
-                <> </>
-            }
+            }} onClick={(e) => e.stopPropagation()} onFocus={() => setVisible(true)} value={bookName}></MyInput>
+            {visible && bookName && <Dropdown onClick={(e) => e.stopPropagation()} booksArr={booksArr}/>}
         </div>
     );
 }

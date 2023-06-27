@@ -6,7 +6,7 @@ import {Rating} from '@mui/material';
 import {AuthContext, UserContext} from "../../../context";
 import {getRatedBooks, rateBook} from "../../../utils/backendAPI";
 
-function Dropdown({booksArr}) {
+function Dropdown({booksArr, ...props}) {
     const [modal, setModal] = useState(false);
     const [pickedBook, setPickedBook] = useState({});
     const [pickedRate, setPickedRate] = useState(0);
@@ -31,7 +31,7 @@ function Dropdown({booksArr}) {
         })
     }
     return (
-        <div className={style.dropdown}>
+        <div className={style.dropdown} {...props}>
             <div className={style.dropdownContent}>
                 {booksArr.map((book) =>
                     <div key={book.book_id} className={style.dropdownItem}>

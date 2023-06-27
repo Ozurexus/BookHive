@@ -9,6 +9,7 @@ function ContextProvider({children}) {
     const [isLoading, setLoading] = useState(true);
 
     const [books, setBooks] = useState([]);
+    const [userLogin, setUserLogin] = useState('');
 
     useEffect(() => {
         console.log("ContextProvider-UseEffect")
@@ -16,6 +17,7 @@ function ContextProvider({children}) {
             setIsAuth(true);
             setAccessToken(localStorage.getItem('accessToken'));
             setUserId(localStorage.getItem('userId'));
+            setUserLogin(localStorage.getItem('userLogin'));
             getRatedBooks(localStorage.getItem('userId'), localStorage.getItem('accessToken'))
                 .then(obj => {
                     setBooks(obj.items);
@@ -37,7 +39,9 @@ function ContextProvider({children}) {
         }}>
             <UserContext.Provider value={{
                 books,
-                setBooks
+                setBooks,
+                userLogin,
+                setUserLogin
             }}>
                 {children}
             </UserContext.Provider>
