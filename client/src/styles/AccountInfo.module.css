@@ -4,16 +4,26 @@
     align-items: center;
     height: 100%;
 }
-.chPassBtn{
+.chPassBtnDiv{
     justify-self: center;
     align-self: center;
+}
+.chPassBtn{
+    background-color: transparent;
+    cursor: pointer;
+    border: none;
+    font-size: 1.2vw;
+    color: rgb(130,130,130);
+}
+.chPassBtn:hover{
+    filter: brightness(0.2);
 }
 .status {
     font-size: 2vw;
     align-self: center;
     justify-self: center;
     margin-bottom: 20px;
-    color: rgb(255, 199, 31);
+    color: rgb(255, 158, 16);
 }
 
 .accountInfoWithoutStatus {

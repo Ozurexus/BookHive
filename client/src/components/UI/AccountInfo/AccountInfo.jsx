@@ -25,8 +25,8 @@ function AccountInfo(props) {
             <div className={style.status}>
                 <p>Status: {status}</p>
             </div>
-            <div className={style.chPassBtn}>
-                <button>Change password</button>
+            <div className={style.chPassBtnDiv}>
+                <button className={style.chPassBtn}>Change password</button>
             </div>
         </div>
 
