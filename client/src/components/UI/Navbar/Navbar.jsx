@@ -43,8 +43,8 @@ const Navbar = () => {
             <div className={style.booksearch}>
                 <BookSearch placeholder={'BookSearch books'}/>
             </div>
-            <div className={style.logout}>
-                <MyButton className={style.logoutBtn} onClick={logout}>Log Out</MyButton>
+            <div className={style.logout} onClick={logout}>
+                <div className={style.logoutTxt}>Log out</div>
             </div>
         </div>
     )

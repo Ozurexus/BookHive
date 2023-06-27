@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: Calibri, serif;
 }
 #root {
     display: flex;
@@ -11,4 +12,17 @@
 .page {
     width: 100%;
     height: 100%;
+}
+::-webkit-scrollbar {
+    width: 15px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: rgb(230, 230, 230);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: rgb(255, 193, 7);
 }

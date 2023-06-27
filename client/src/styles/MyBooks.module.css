@@ -7,7 +7,14 @@
     height: 80%;
     border-radius: 20px;
     border: none;
-    background-color: rgb(255, 199, 31);
+    background-color: rgb(254, 195, 41);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.myRevBtn:hover{
+    filter: brightness(0.85);
+}
+.wantToReadBtn:hover{
+    filter: brightness(0.85);
 }
 .container{
     grid-template-columns: 26% 71%;
@@ -45,6 +52,6 @@
     justify-content: center;
 }
 .booksgrid{
- background-color: red;
-
+    overflow: auto;
 }
+

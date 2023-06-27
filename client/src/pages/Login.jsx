@@ -13,7 +13,7 @@ const Login = () => {
 
     return (
         <div className={styles.modal}>
-            <h1>Log in!</h1>
+            <h1 className={styles.h1}>Log in!</h1>
             <form className={styles.modalForm} onSubmit={(event) => {
                 event.preventDefault();
                 login(user)
@@ -50,9 +50,10 @@ const Login = () => {
                          })}
                          type="password"
                          placeholder="Password" />
-                <MyButton>LogIn</MyButton>
+                <button className={styles.logInBtn}>Log In</button>
             </form>
-            <Link to="/register">Register</Link>
+            <p className={styles.p}>or</p>
+            <Link to="/register" className={styles.regBtn}>Register</Link>
         </div>
     )
 }
