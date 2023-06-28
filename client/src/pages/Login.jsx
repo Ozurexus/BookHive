@@ -1,26 +1,29 @@
-import React, {useContext, useState} from "react";
+import React, {useContext, useRef} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import MyInput from "../components/UI/Input/MyInput";
-import MyButton from "../components/UI/Button/MyButton";
 import styles from '../styles/Login.module.css'
 import {AuthContext} from "../context";
 import {login} from "../utils/backendAPI";
 
 const Login = () => {
     const {setIsAuth, setUserId, setAccessToken} = useContext(AuthContext);
-    const [user, setUser] = useState({login: '', password: ''});
     const navigate = useNavigate();
+    console.log('Render login')
+
+    const logRef = useRef();
+    const passRef = useRef();
 
     return (
         <div className={styles.modal}>
             <h1 className={styles.h1}>Log in!</h1>
             <form className={styles.modalForm} onSubmit={(event) => {
                 event.preventDefault();
-                login(user)
+                login({login:logRef.current.value, password:passRef.current.value})
                     .then(user => {
                         if(user.detail) {
                             alert("Wrong user");
-                            setUser({login: '', password: ''});
+                            logRef.current.value = '';
+                            passRef.current.value = '';
                         } else {
                             setUserId(user['user_id']);
                             setAccessToken(user['jwt']['access_token']);
@@ -29,25 +32,17 @@ const Login = () => {
                             localStorage.setItem('userId', `${user['user_id']}`);
                             localStorage.setItem('accessToken', `${user['jwt']['access_token']}`);
                             localStorage.setItem('auth', 'true');
+                            localStorage.setItem('userLogin', `${logRef.current.value}`)
+                            navigate('/welcome')
                         }
-                    })
-                    .then(() => {
-                        localStorage.setItem('userLogin', `${user.login}`)
-                        navigate('/welcome')
                     });
             }}>
-                <MyInput value={user.login}
-                         onChange={e => setUser({
-                             ...user,
-                             login: e.target.value
-                         })}
+                <MyInput
+                         ref={logRef}
                          type="text"
                          placeholder="Username" />
-                <MyInput value={user.password}
-                         onChange={e => setUser({
-                             ...user,
-                             password: e.target.value
-                         })}
+                <MyInput
+                         ref={passRef}
                          type="password"
                          placeholder="Password" />
                 <button className={styles.logInBtn}>Log In</button>

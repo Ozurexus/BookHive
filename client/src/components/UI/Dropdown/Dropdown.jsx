@@ -21,6 +21,7 @@ function Dropdown({booksArr, ...props}) {
             setPickedRate(0);
     }, [pickedBook])
 
+
     const showBook = (book) => {
         setModal(true);
         setPickedBook({

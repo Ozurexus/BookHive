@@ -1,7 +1,6 @@
 import React, {useContext} from "react";
 import {Link} from "react-router-dom";
 import style from './Navbar.module.css'
-import MyButton from "../Button/MyButton";
 import {AuthContext} from "../../../context";
 import BookSearch from "../Search/BookSearch";
 import logo from "./logo.png"
@@ -15,12 +14,7 @@ const Navbar = () => {
         localStorage.removeItem('auth');
         localStorage.removeItem('userId');
         localStorage.removeItem('accessToken');
-    }
-    const linkStyle = {
-        display: "contents",
-        textDecoration: 'none',
-        color: 'black',
-        fontWeight: "bold",
+        localStorage.removeItem('userLogin');
     }
     return (
         <div className={style.navbar}>
@@ -31,12 +25,12 @@ const Navbar = () => {
                 <h1>BookHive</h1>
             </div>
             <div className={style.recommendations}>
-                <Link to='/recommendations' style={linkStyle}>
+                <Link to='/recommendations'>
                     <div className={style.link}>RECOMMENDATIONS</div>
                 </Link>
             </div>
             <div className={style.mybooks}>
-                <Link to='/mybooks' style={linkStyle}>
+                <Link to='/mybooks'>
                     <div className={style.link}>MY BOOKS</div>
                 </Link>
             </div>

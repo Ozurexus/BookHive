@@ -24,7 +24,7 @@ function ContextProvider({children}) {
                 })
         }
         setLoading(false);
-    }, [])
+    }, [isAuth])
 
     return (
         <AuthContext.Provider value={{
