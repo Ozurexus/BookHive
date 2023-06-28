@@ -5,6 +5,7 @@ import MyModal from "../MyModal/MyModal";
 import {Rating} from '@mui/material';
 import {AuthContext, UserContext} from "../../../context";
 import {getRatedBooks, rateBook} from "../../../utils/backendAPI";
+import EmptyCover from "../EmptyCover/EmptyCover";
 
 function Dropdown({booksArr, ...props}) {
     const [modal, setModal] = useState(false);
@@ -31,16 +32,29 @@ function Dropdown({booksArr, ...props}) {
             bookId: book.book_id
         })
     }
+    const coverExist = (url) => {
+        const rand = Math.random()>0.5;
+        return rand;
+    }
     return (
         <div className={style.dropdown} {...props}>
             <div className={style.dropdownContent}>
                 {booksArr.map((book) =>
-                    <div key={book.book_id} className={style.dropdownItem}>
-                        <img src={book.image_link_small} alt={'book'}/>
-                        <p>{book.title}</p>
-                        <p>by {book.author}</p>
-                        <MyButton onClick={() => showBook(book)}>Rate</MyButton>
-                    </div>
+                    coverExist(book.image_link_small)
+                        ?
+                        <div key={book.book_id} className={style.dropdownItem}>
+                            <img src={book.image_link_small} alt={'book'}/>
+                            <p className={style.prghTitle}>{book.title}</p>
+                            <p className={style.prghAuthor}>{book.author}</p>
+                            <MyButton onClick={() => showBook(book)}>Rate</MyButton>
+                        </div>
+                        :
+                        <div key={book.book_id} className={style.dropdownItem}>
+                            <EmptyCover name={book.title} size="S"/>
+                            <p className={style.prghTitle}>{book.title}</p>
+                            <p className={style.prghAuthor}>{book.author}</p>
+                            <MyButton onClick={() => showBook(book)}>Rate</MyButton>
+                        </div>
                 )}
             </div>
             <MyModal visible={modal} setVisible={() => {

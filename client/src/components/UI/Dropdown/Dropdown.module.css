@@ -26,6 +26,10 @@
 .dropdownItem p {
     align-self: center;
 }
+.prghTitle, .prghAuthor{
+    font-size: 13px;
+    margin:3px;
+}
 .dropdownContent div:hover {
     background-color: #f1f1f1;
 }

@@ -1,0 +1,17 @@
+.container {
+    display: flex;
+
+    overflow-x: auto;
+    height: 70vh;
+    gap: 20px;
+    margin-top: 50px;
+    scrollbar-gutter: stable both-edges;
+}
+.book{
+    background-color: transparent;
+    min-width: 450px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+

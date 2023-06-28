@@ -17,10 +17,10 @@ function BooksGrid() {
     return (
         <div className={style.grid}>
             {books.map((book) => (
-                <div key={book.id} className={style.gridItem}>
+                <div key={book.id} className={style.book}>
                     {coverExist(book.image_url_m)
                         ? <img src={book.image_url_m} alt={book.title}/>
-                        : <EmptyCover name={book.title}/>
+                        : <EmptyCover name={book.title} size="M"/>
                     }
                 </div>
             ))}
