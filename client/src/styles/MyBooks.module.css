@@ -7,8 +7,7 @@
     height: 80%;
     border-radius: 20px;
     border: none;
-    background-color: rgb(254, 195, 41);
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    background: linear-gradient(360deg, rgb(255 153 1/93%), rgb(255 201 41/93%));
 }
 .myRevBtn:hover{
     filter: brightness(0.85);

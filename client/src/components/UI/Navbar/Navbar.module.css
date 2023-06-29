@@ -36,7 +36,7 @@
     border-radius: 15px;
 }
 
-.recommendations:hover {
+.recommendations:hover, .mybooks:hover, .logout:hover {
     background-color: #f1f1f1;
 }
 
@@ -62,10 +62,6 @@
     border-radius: 15px;
 }
 
-.mybooks:hover {
-    background-color: #f1f1f1;
-}
-
 .booksearch {
     flex-grow: 3;
 }
@@ -80,9 +76,6 @@
     padding: 10px;
     border-radius: 15px;
     margin-right: 20px;
-}
-.logout:hover {
-    background-color: #f1f1f1;
 }
 
 .logoutTxt {

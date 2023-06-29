@@ -20,8 +20,10 @@ const Recommendations = () => {
                             ? <img src={book.image_url_l} alt={book.title}/>
                             : <EmptyCover name={book.title} size="L"/>
                         }
+                        <button className={style.wantToReadBtn}>Want to read</button>
                     </div>
                 ))}
+
             </div>
         </div>
     )
