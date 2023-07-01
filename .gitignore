@@ -4,3 +4,4 @@ __pycache__
 *.pyc
 *.pyo
 myvenv
+backend/config.json

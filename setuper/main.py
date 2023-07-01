@@ -37,13 +37,19 @@ def migrate():
 
 def dump_from_csv():
     # books
-    books_file = "./csv/books.csv"
+    books_file = "./csv/books_cut.csv"
     with open(books_file, "r") as file:
         reader = csv.reader(file, delimiter=",", quotechar='"')
-        books = [row[:-1] + ["", ""] for row in reader][1:]
+        books = [row + ["", ""] for row in reader][1:]
         for book in books:
-            book[0] = int(book[0]) + 1
-            book[4] = int(book[4])
+            try:
+                book[0] = int(book[0]) + 1
+                book[4] = int(book[4])
+                if len(book) != 11:
+                    print(book)
+            except Exception as e:
+                print(book)
+                print(e)
         books = [tuple(book) for book in books]
         records_list_template = ",".join(["%s"] * 11)
         args = ",".join(
@@ -58,7 +64,7 @@ def dump_from_csv():
             print("books table import...", end=" ")
             cur.execute(insert_query)
             conn.commit()
-        except psycopg2.errors.UniqueViolation:
+        except psycopg2.errors.UniqueViolation as e:
             conn.rollback()
             print("⚠️  seems data is already imported - rollback")
         else:
