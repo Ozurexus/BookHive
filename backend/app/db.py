@@ -271,6 +271,17 @@ class DB:
             self.cur.fetchall(), user_id, need_ratings=True
         )
 
+    def get_books_by_ids(self, book_ids: List[int], user_id: int) -> List[BookExt]:
+        select_query = """
+                    SELECT b.id, isbn, title, author, year_of_publication, publisher, image_url_s, 
+                            image_url_m, image_url_l, genre, annotation, r.rating
+                    FROM books b
+                             JOIN ratings r ON b.id = r.book_id
+                    WHERE r.user_id = %s AND b.id IN %s
+                """
+        self.cur.execute(select_query, (user_id, book_ids))
+        return self.parse_books_ext_from_db(self.cur.fetchall(), user_id)
+
     def get_user_reviewed_books_num(self, user_id) -> int:
         query = """SELECT COUNT(*) FROM ratings WHERE user_id = %s"""
         self.cur.execute(query, (user_id,))

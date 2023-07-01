@@ -34,6 +34,7 @@ class Backend:
         self.tokenTTL = 30
         self.password_salt = "salt"
         self.with_auth = True
+        self.ml_retrain_counter = 5
 
 
 class Config:

@@ -81,10 +81,16 @@ def dump_from_csv():
     else:
         print(" ✅")
 
-    books_file = "./csv/ratings.csv"
+    books_file = "./csv/ratings_cut.csv"
     with open(books_file, "r") as file:
         reader = csv.reader(file, delimiter=",", quotechar='"')
         ratings = [row[1:] for row in reader][1:]
+
+        """Из-за того что кое кто дал кривые данные нужны костыли"""
+        for rate in ratings:
+            rate[0] = int(rate[0]) + 1
+            rate[2] = int(rate[2]) + 1
+
         ratings = [tuple(int(r) for r in rate) for rate in ratings]
 
         records_list_template = ",".join(["%s"] * len(ratings[0]))

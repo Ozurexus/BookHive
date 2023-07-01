@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from models import *
 
-# from ml.aml import get_recs
+from ml.client import MlClient
 from db import *
 from config import get_config
 from jwt import *
@@ -87,6 +87,9 @@ async def ping():
 config = get_config()
 db = DB(config.PostgresConfig)
 
+# ------------------------------------ML------------------------------------
+ml_client = MlClient(db.conn, atomic_max=config.BackendConfig.ml_retrain_counter)
+
 
 # ------------------------------------API------------------------------------
 
@@ -102,16 +105,24 @@ async def get_rated_books(user_id):
     return BooksResponse(items=books, size=len(books))
 
 
-@app_api.get("/get_recommended_books/{user_id}")
-async def get_recommendations(user_id, limit: int = 0):
-    recommendations = get_recs(user_id, limit)
-    books_info = []
-    for rec in recommendations:
-        book_info = db.get_book_info(rec)
-        books_info.append(book_info)
-        sleep(1)  # ???
-    books = {"books": books_info}
-    return books
+@app_api.get("/books/recommendations/{user_id}", response_model=BooksResponse)
+async def get_recommendations(user_id, limit: int = 3):
+    """
+    Из мл модели
+    """
+    try:
+        book_ids = ml_client.get_recommendations(user_id, limit)
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=500)
+
+    try:
+        books = db.get_books_by_ids(book_ids, user_id)
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=500)
+    resp = BooksResponse(items=books, size=len(books))
+    return resp
 
 
 @app_api.get("/books/find/", response_model=BooksByPatternResponse)
@@ -135,6 +146,13 @@ async def books_rate(rate_req: RateReq):
     except Exception as e:
         logging.error(e)
         raise HTTPException(status_code=500)
+
+    try:
+        ml_client.retrain_model()
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=500)
+
     return JSONResponse(200)
 
 
@@ -209,6 +227,12 @@ async def register_user(register_req: UserRegisterReq):
             status_code=409,
             detail="User with such login already exists: try choose another login",
         )
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=500)
+
+    try:
+        ml_client.retrain_model()
     except Exception as e:
         logging.error(e)
         raise HTTPException(status_code=500)
