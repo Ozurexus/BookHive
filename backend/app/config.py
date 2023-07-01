@@ -35,6 +35,7 @@ class Backend:
         self.password_salt = "salt"
         self.with_auth = True
         self.ml_retrain_counter = 5
+        self.public_addr = "http://127.0.0.1:8080"
 
 
 class Config:

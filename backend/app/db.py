@@ -3,8 +3,8 @@ import time
 
 import psycopg2
 
-from util import fetch_annotation_and_genre
-from config import Postgres
+from util import *
+from config import Config
 from models import *
 from mocks import *
 
@@ -22,15 +22,17 @@ class NotFound(Exception):
 
 
 class DB:
-    def __init__(self, conf: Postgres):
+    def __init__(self, conf: Config):
+        pg_conf = conf.PostgresConfig
         logging.info("connecting to postgres...")
         self.conn = psycopg2.connect(
-            dbname=conf.database,
-            user=conf.user,
-            password=conf.password,
-            host=conf.host,
-            port=int(conf.port),
+            dbname=pg_conf.database,
+            user=pg_conf.user,
+            password=pg_conf.password,
+            host=pg_conf.host,
+            port=int(pg_conf.port),
         )
+        self.conf = conf
         self.cur = self.conn.cursor()
         logging.info("connected!")
 
@@ -63,7 +65,7 @@ class DB:
         return books
 
     def parse_books_ext_from_db(
-        self, fetchall, user_id: int, need_ratings=False
+            self, fetchall, user_id: int, need_ratings=False
     ) -> List[BookExt]:
         books: List[BookExt] = []
         for book in fetchall:
@@ -97,6 +99,16 @@ class DB:
                 book_model.genre = genre
                 self.update_annotation_and_genre(book_model.id, annotation, genre)
                 time.sleep(0.5)  # TODO: подумать насчет этого
+
+            if is_image_blank(book_model.image_url_s):
+                book_model.image_url_s = generate_image_url(self.conf, "emptyCoverS.png")
+
+            if is_image_blank(book_model.image_url_m):
+                book_model.image_url_m = generate_image_url(self.conf, "emptyCoverM.png")
+
+            if is_image_blank(book_model.image_url_l):
+                book_model.image_url_l = generate_image_url(self.conf, "emptyCoverL.png")
+
             books.append(book_model)
 
         if need_ratings:
@@ -123,7 +135,7 @@ class DB:
         return self.parse_books_ext_from_db(self.cur.fetchall(), user_id)
 
     def find_books_by_title_pattern(
-        self, pattern: str, limit: int = 0
+            self, pattern: str, limit: int = 0
     ) -> List[BooksByPatternItem]:
         query = """SELECT id, title, author, image_url_s 
         FROM books WHERE LOWER(title) LIKE (%s)
@@ -271,16 +283,16 @@ class DB:
             self.cur.fetchall(), user_id, need_ratings=True
         )
 
-    def get_books_by_ids(self, book_ids: List[int], user_id: int) -> List[BookExt]:
+    def get_books_by_ids(self, book_ids: list, user_id: int) -> List[Book]:
         select_query = """
                     SELECT b.id, isbn, title, author, year_of_publication, publisher, image_url_s, 
-                            image_url_m, image_url_l, genre, annotation, r.rating
-                    FROM books b
-                             JOIN ratings r ON b.id = r.book_id
-                    WHERE r.user_id = %s AND b.id IN %s
+                            image_url_m, image_url_l, genre, annotation
+                    FROM books b WHERE b.id IN %s
                 """
-        self.cur.execute(select_query, (user_id, book_ids))
-        return self.parse_books_ext_from_db(self.cur.fetchall(), user_id)
+        book_ids = tuple(book_ids)
+        self.cur.execute(select_query, (book_ids,))
+        dst = from_books_ext_to_books(self.parse_books_ext_from_db(self.cur.fetchall(), user_id))
+        return dst
 
     def get_user_reviewed_books_num(self, user_id) -> int:
         query = """SELECT COUNT(*) FROM ratings WHERE user_id = %s"""

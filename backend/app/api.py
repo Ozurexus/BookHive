@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from models import *
 
@@ -30,6 +31,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         self.some_attribute = some_attribute
 
     async def dispatch(self, request: Request, call_next):
+        print(config.BackendConfig)
         if not config.BackendConfig.with_auth:
             response = await call_next(request)
             return response
@@ -85,16 +87,19 @@ async def ping():
 
 # ------------------------------------CONFIG+DB------------------------------------
 config = get_config()
-db = DB(config.PostgresConfig)
+db = DB(config)
 
 # ------------------------------------ML------------------------------------
 ml_client = MlClient(db.conn, atomic_max=config.BackendConfig.ml_retrain_counter)
 
 
+# ------------------------------------STATIC---------------------------------
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 # ------------------------------------API------------------------------------
 
 
-@app_api.get("/get_rated_books/{user_id}", response_model=BooksResponse)
+@app_api.get("/get_rated_books/{user_id}", response_model=BooksExtResponse)
 async def get_rated_books(user_id):
     # getting book_ids
     try:
@@ -102,16 +107,17 @@ async def get_rated_books(user_id):
     except Exception as e:
         logging.error(e)
         raise HTTPException(status_code=500)
-    return BooksResponse(items=books, size=len(books))
+    return BooksExtResponse(items=books, size=len(books))
 
 
 @app_api.get("/books/recommendations/{user_id}", response_model=BooksResponse)
-async def get_recommendations(user_id, limit: int = 3):
+async def get_recommendations(user_id: int, limit: int = 3):
     """
     Из мл модели
     """
     try:
-        book_ids = ml_client.get_recommendations(user_id, limit)
+        book_ids = ml_client.get_recommendations(int(user_id), int(limit))
+        book_ids = [int(book_id) for book_id in book_ids]
     except Exception as e:
         logging.error(e)
         raise HTTPException(status_code=500)
@@ -121,7 +127,7 @@ async def get_recommendations(user_id, limit: int = 3):
     except Exception as e:
         logging.error(e)
         raise HTTPException(status_code=500)
-    resp = BooksResponse(items=books, size=len(books))
+    resp = BooksExtResponse(items=books, size=len(books))
     return resp
 
 
@@ -189,14 +195,14 @@ async def wish_un_wish_book(rate_req: WantToReadBookReq):
     return JSONResponse(200)
 
 
-@app_api.get("/books/wishes/{user_id}", response_model=BooksResponse)
+@app_api.get("/books/wishes/{user_id}", response_model=BooksExtResponse)
 async def get_user_wishes_books(user_id: int):
     try:
         books = db.get_user_favorite_books(user_id)
     except Exception as e:
         logging.error(e)
         raise HTTPException(status_code=500)
-    resp = BooksResponse(items=books, size=len(books))
+    resp = BooksExtResponse(items=books, size=len(books))
     return resp
 
 

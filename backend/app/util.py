@@ -1,5 +1,13 @@
 import logging
+from io import BytesIO
+from typing import List
+
 import requests
+
+from models import BookExt, Book
+from PIL import Image
+from urllib.request import Request, urlopen
+from config import Config
 
 
 def fetch_annotation_and_genre(isbn):
@@ -49,3 +57,28 @@ def calculate_user_status(reviewed_books: int):
     elif 76 <= reviewed_books <= 100:
         return USER_STATUSES[4]
     return USER_STATUSES[5]
+
+
+def from_books_ext_to_books(books_ext: List[BookExt]) -> List[Book]:
+    return [Book(**book_ext.dict()) for book_ext in books_ext]
+
+
+def get_image_height_width(image_url: str) -> (int, int):
+    req = Request(image_url)
+    req.add_header("user-agent",
+                   "Mozilla/5.0 (Linux; Android 11; SAMSUNG SM-G973U) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/14.2 Chrome/87.0.4280.141 Mobile Safari/537.36")
+    fp = urlopen(req)
+    mybytes = fp.read()
+    im = Image.open(BytesIO(mybytes))
+    fp.close()
+    return im.size
+
+
+def is_image_blank(image_url: str) -> bool:
+    h, w = get_image_height_width(image_url)
+    return h == 1 and w == 1
+
+
+def generate_image_url(config: Config, image_name: str) -> str:
+    image_url = config.BackendConfig.public_addr + f"/static/{image_name}"
+    return image_url

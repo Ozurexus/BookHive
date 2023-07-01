@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS users
 (
     id            INT UNIQUE PRIMARY KEY,
     login         TEXT,
-    password_hash TEXT
+    password_hash TEXT,
+    created_at    timestamp DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS users_id_idx ON users USING btree (id);
 

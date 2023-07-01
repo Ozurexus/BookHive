@@ -24,8 +24,13 @@ class BookExt(Book):
     want_to_read: Optional[bool]
 
 
-class BooksResponse(BaseModel):
+class BooksExtResponse(BaseModel):
     items: List[BookExt]
+    size: int
+
+
+class BooksResponse(BaseModel):
+    items: List[Book]
     size: int
 
 
