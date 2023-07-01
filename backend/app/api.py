@@ -31,7 +31,6 @@ class AuthMiddleware(BaseHTTPMiddleware):
         self.some_attribute = some_attribute
 
     async def dispatch(self, request: Request, call_next):
-        print(config.BackendConfig)
         if not config.BackendConfig.with_auth:
             response = await call_next(request)
             return response
