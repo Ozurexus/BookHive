@@ -15,6 +15,17 @@ export const register = (user) => {
         .then(resp => resp.json())
         .catch(err => console.log(err));
 }
+export const changePassword = (passForm) => {
+    return fetch(`${backAddr}/auth/users/change_password`, {
+        method: "POST",
+        headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(passForm)
+    })
+        .catch(err => console.log(err));
+}
 export const login = (user) => {
     return fetch(`${backAddr}/auth/users/login`, {
         method: "POST",

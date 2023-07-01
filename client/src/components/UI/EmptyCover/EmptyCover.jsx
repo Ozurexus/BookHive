@@ -1,9 +1,21 @@
 import React from 'react';
 import style from './EmptyCover.module.css'
-import image from './emptyCover.png'
-function EmptyCover({name}) {
+
+function EmptyCover({name, size}) { // size = {"S", "M", "L"}, for small, medium and large images correspondingly
+    console.log(size);
+    const imageSizes = {"S": [75, 60], "M": [160, 130], "L": [475, 450]}
+    const fontSize = {"S": "6.2px", "M": "14px", "L": "39px"}
+    const [h, w] = imageSizes[size];
     return (
-        <div style={{ backgroundImage: 'url(' + image + ')', height: 160, width: 130, display: "flex"}}>
+        <div style={{
+            backgroundImage: 'url(/emptyCover' + size + '.png)',
+            height: h,
+            width: w,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            fontSize: fontSize[size]
+        }}>
             <p className={style.p}>{name}</p>
         </div>
     );

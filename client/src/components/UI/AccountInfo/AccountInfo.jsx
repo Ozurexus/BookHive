@@ -1,21 +1,30 @@
-import React, {useContext} from 'react';
+import React, {useContext, useRef, useState} from 'react';
 import {Avatar} from "@mui/material";
 import style from "../../../styles/AccountInfo.module.css";
-import {UserContext} from "../../../context";
+import {AuthContext, UserContext} from "../../../context";
+import MyModal from "../MyModal/MyModal";
+import MyInput from "../Input/MyInput";
+import MyButton from "../Button/MyButton";
+import {changePassword} from "../../../utils/backendAPI";
+import PassChangeForm from "../PassChangeForm/PassChangeForm";
 
 
 function AccountInfo(props) {
-    const {books} = useContext(UserContext);
-    let name = "Marat Bulatov";
+    const {books, userLogin} = useContext(UserContext);
+    const [passVisible, setPassVisible] = useState(false);
+
+
+    console.log("AccountInfo render")
     let status = "Cool guy";
-    return (<div className={style.accountInfo}>
+    return (
+        <div className={style.accountInfo}>
             <div className={style.accountInfoWithoutStatus}>
                 <div className={style.avatar}>
                     <Avatar alt="Remy Sharp" src="../Search/logo512.png" sx={{width: 90, height: 90}}/>
                 </div>
                 <div className={style.info}>
                     <div className={style.name}>
-                        <p>{name}</p>
+                        <p>{userLogin}</p>
                     </div>
                     <div className={style.n_reviewed}>
                         <p>Books reviewed: {books.length}</p>
@@ -26,10 +35,14 @@ function AccountInfo(props) {
                 <p>Status: {status}</p>
             </div>
             <div className={style.chPassBtnDiv}>
-                <button className={style.chPassBtn}>Change password</button>
+                <button className={style.chPassBtn} onClick={() => setPassVisible(true)}>Change password</button>
+                {passVisible &&
+                    <MyModal visible={passVisible} setVisible={() => setPassVisible(false)}>
+                        <PassChangeForm setVisible={() => setPassVisible(false)}/>
+                    </MyModal>
+                }
             </div>
         </div>
-
     );
 }
 

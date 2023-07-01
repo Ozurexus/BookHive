@@ -15,7 +15,7 @@ const MyBooks = () => {
                     </div>
                     <div className={style.otherOptions}>
                         <button className={style.myRevBtn}>My reviews</button>
-                        <button className={style.wantToReadBtn}>Wants to read</button>
+                        <button className={style.wantToReadBtn}>Want to read</button>
                     </div>
                 </div>
                 <div className={style.booksgrid}>

@@ -1,0 +1,21 @@
+.container {
+    display: flex;
+    overflow-x: auto;
+    height: 80vh;
+    gap: 20px;
+    scrollbar-gutter: stable both-edges;
+    margin: 30px;
+}
+.book{
+    background-color: transparent;
+    flex-direction: column;
+    min-width: 450px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wantToReadBtn{
+    margin-top: auto;
+    margin-bottom: 20px;
+}
