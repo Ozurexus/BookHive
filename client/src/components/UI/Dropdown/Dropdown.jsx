@@ -26,10 +26,10 @@ function Dropdown({booksArr, ...props}) {
     const showBook = (book) => {
         setModal(true);
         setPickedBook({
-            image_link_small: book.image_link_small,
+            image_url_s: book.image_url_s,
             title: book.title,
             author: book.author,
-            bookId: book.book_id
+            bookId: book.id
         })
     }
 
@@ -37,8 +37,8 @@ function Dropdown({booksArr, ...props}) {
         <div className={style.dropdown} {...props}>
             <div className={style.dropdownContent}>
                 {booksArr.map((book) =>
-                    <div key={book.book_id} className={style.dropdownItem}>
-                        <img src={book.image_link_small} alt={'book'}/>
+                    <div key={book.id} className={style.dropdownItem}>
+                        <img src={book.image_url_s} alt={'book'}/>
                         <p className={style.prghTitle}>{book.title}</p>
                         <p className={style.prghAuthor}>{book.author}</p>
                         <MyButton onClick={() => showBook(book)}>Rate</MyButton>
@@ -56,7 +56,7 @@ function Dropdown({booksArr, ...props}) {
                         })
                 }
             }}>
-                <img src={pickedBook.image_link_small} alt={'book'}/>
+                <img src={pickedBook.image_url_s} alt={'book'}/>
                 <p>{pickedBook.title}</p>
                 <p>by {pickedBook.author}</p>
                 <Rating

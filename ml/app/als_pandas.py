@@ -26,7 +26,7 @@ class ALS_Model:
 
             train_mse = self.compute_mse(self.ratings, predictions)
             self.train_mse_record.append(train_mse)
-            logging.debug(f"MSE is {train_mse}")
+            logging.info(f"MSE is {train_mse}")
         self.predictions = self.predict()
         return self
 
@@ -67,6 +67,9 @@ def train_model(ratings_df, n_iters=20, n_factors=60, reg=0.15) -> ALS_Model:
     # нет книг без оценок!!!
     n_users = ratings_df["user"].max()
     n_items = ratings_df["book_id"].max()
+
+    logging.info(f'n_users={n_users}')
+    logging.info(f'n_items={n_items}')
 
     ratings = np.zeros((n_users + 1, n_items + 1))
 

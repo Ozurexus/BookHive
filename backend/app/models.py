@@ -35,10 +35,12 @@ class BooksResponse(BaseModel):
 
 
 class BooksByPatternItem(BaseModel):
-    book_id: int
+    id: int
     title: str
     author: str
-    image_link_small: str
+    image_url_s: str
+    image_url_m: str
+    image_url_l: str
 
 
 class BooksByPatternResponse(BaseModel):
@@ -75,6 +77,9 @@ class JWT(BaseModel):
 class UserRegisterReq(BaseModel):
     login: str
     password: str
+
+    def valid(self) -> bool:
+        return len(self.login) > 0 and self.password > 0
 
 
 class UserRegisterResp(BaseModel):

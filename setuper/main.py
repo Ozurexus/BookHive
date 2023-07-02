@@ -126,7 +126,9 @@ def dump_from_csv():
             """Из-за того что кое кто дал кривые данные нужны костыли"""
             for rate in ratings:
                 rate[0] = int(rate[0]) + 1
-                rate[2] = int(rate[2]) + 1
+                if rate[2] == '':
+                    rate[2] = 1
+                rate[2] = int(float(rate[2])) + 1
 
             ratings = [tuple(int(r) for r in rate) for rate in ratings]
 

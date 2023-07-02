@@ -30,6 +30,7 @@ class MlClient:
         try:
             logging.info('starting dumping from db...')
             df_rating = dump_rating(self.conn)
+            logging.debug(df_rating.shape)
             logging.info('starting training model...')
             self.model = train_model(df_rating)
             logging.info('dumping and training model done ✅')

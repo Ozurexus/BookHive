@@ -164,7 +164,7 @@ class DB:
     def find_books_by_title_pattern(
             self, pattern: str, limit: int = 0
     ) -> List[BooksByPatternItem]:
-        query = """SELECT id, title, author, image_url_s 
+        query = """SELECT id, title, author, image_url_s, image_url_m, image_url_l
         FROM books WHERE LOWER(title) LIKE (%s)
         """
         pattern = pattern + "%"
@@ -174,17 +174,32 @@ class DB:
         else:
             self.cur.execute(query, (pattern,))
 
-        dst = []
+        def run(b):
+            self.handle_images(b)
+
+        books = []
         for item in self.cur.fetchall():
-            dst.append(
+            books.append(
                 BooksByPatternItem(
-                    book_id=item[0],
+                    id=item[0],
                     title=item[1],
                     author=item[2],
-                    image_link_small=item[3],
+                    image_url_s=item[3],
+                    image_url_m=item[4],
+                    image_url_l=item[5]
                 )
             )
-        return dst
+
+        threads_list = []
+        for book in books:
+            t = threading.Thread(target=run, args=(book,))
+            threads_list.append(t)
+            t.start()
+
+        for t in threads_list:
+            t.join()
+
+        return books
 
     def rate_book(self, rate_req: RateReq):
         # checking whether already exists

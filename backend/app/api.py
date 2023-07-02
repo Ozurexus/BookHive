@@ -231,6 +231,11 @@ async def get_user_status(user_id: int):
 # ------------------------------------------------------AUTH------------------------------------------------------------------------
 @app_auth.post("/users/register", response_model=UserRegisterResp)
 async def register_user(register_req: UserRegisterReq):
+    if not register_req.valid():
+        raise HTTPException(
+            status_code=400,
+            detail="Empty login or password",
+        )
     try:
         user = db.register_user(
             register_req,
