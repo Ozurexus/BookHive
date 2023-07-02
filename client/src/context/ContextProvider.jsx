@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {AuthContext, UserContext} from "./index";
-import {getRatedBooks} from "../utils/backendAPI";
+import {getRatedBooks, getRecommendedBooks} from "../utils/backendAPI";
 
 function ContextProvider({children}) {
     const [isAuth, setIsAuth] = useState(false);
@@ -10,6 +10,8 @@ function ContextProvider({children}) {
 
     const [books, setBooks] = useState([]);
     const [userLogin, setUserLogin] = useState('');
+    const [recBooks, setRecBooks] = useState([]);
+
 
     useEffect(() => {
         console.log("ContextProvider-UseEffect")
@@ -22,9 +24,14 @@ function ContextProvider({children}) {
                 .then(obj => {
                     setBooks(obj.items);
                 })
+            getRecommendedBooks(localStorage.getItem('userId'), localStorage.getItem('accessToken'))
+                .then((obj) => {
+                    console.log(obj.items);
+                    setRecBooks(obj.items);
+                })
         }
         setLoading(false);
-    }, [isAuth])
+    }, [isAuth]);
 
     return (
         <AuthContext.Provider value={{
@@ -40,6 +47,8 @@ function ContextProvider({children}) {
             <UserContext.Provider value={{
                 books,
                 setBooks,
+                recBooks,
+                setRecBooks,
                 userLogin,
                 setUserLogin
             }}>

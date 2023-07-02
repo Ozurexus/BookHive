@@ -1,11 +1,8 @@
-import React, {useContext, useRef, useState} from 'react';
+import React, {useContext, useMemo, useState} from 'react';
 import {Avatar} from "@mui/material";
 import style from "../../../styles/AccountInfo.module.css";
-import {AuthContext, UserContext} from "../../../context";
+import {UserContext} from "../../../context";
 import MyModal from "../MyModal/MyModal";
-import MyInput from "../Input/MyInput";
-import MyButton from "../Button/MyButton";
-import {changePassword} from "../../../utils/backendAPI";
 import PassChangeForm from "../PassChangeForm/PassChangeForm";
 
 

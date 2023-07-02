@@ -32,29 +32,17 @@ function Dropdown({booksArr, ...props}) {
             bookId: book.book_id
         })
     }
-    const coverExist = (url) => {
-        const rand = Math.random()>0.5;
-        return rand;
-    }
+
     return (
         <div className={style.dropdown} {...props}>
             <div className={style.dropdownContent}>
                 {booksArr.map((book) =>
-                    coverExist(book.image_link_small)
-                        ?
-                        <div key={book.book_id} className={style.dropdownItem}>
-                            <img src={book.image_link_small} alt={'book'}/>
-                            <p className={style.prghTitle}>{book.title}</p>
-                            <p className={style.prghAuthor}>{book.author}</p>
-                            <MyButton onClick={() => showBook(book)}>Rate</MyButton>
-                        </div>
-                        :
-                        <div key={book.book_id} className={style.dropdownItem}>
-                            <EmptyCover name={book.title} size="S"/>
-                            <p className={style.prghTitle}>{book.title}</p>
-                            <p className={style.prghAuthor}>{book.author}</p>
-                            <MyButton onClick={() => showBook(book)}>Rate</MyButton>
-                        </div>
+                    <div key={book.book_id} className={style.dropdownItem}>
+                        <img src={book.image_link_small} alt={'book'}/>
+                        <p className={style.prghTitle}>{book.title}</p>
+                        <p className={style.prghAuthor}>{book.author}</p>
+                        <MyButton onClick={() => showBook(book)}>Rate</MyButton>
+                    </div>
                 )}
             </div>
             <MyModal visible={modal} setVisible={() => {
@@ -65,7 +53,6 @@ function Dropdown({booksArr, ...props}) {
                     getRatedBooks(userId, accessToken)
                         .then((obj) => {
                             setBooks(obj.items);
-                            console.log("")
                         })
                 }
             }}>
