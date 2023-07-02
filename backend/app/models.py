@@ -79,7 +79,7 @@ class UserRegisterReq(BaseModel):
     password: str
 
     def valid(self) -> bool:
-        return len(self.login) > 0 and self.password > 0
+        return len(self.login) > 0 and len(self.password) > 0
 
 
 class UserRegisterResp(BaseModel):
