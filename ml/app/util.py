@@ -1,4 +1,7 @@
 import json
+import logging
+
+import psycopg2
 
 CONFIG_PATH = "./config.json"
 
@@ -24,24 +27,21 @@ class Postgres:
         self.port: int = 0
 
 
-class Backend:
+class ML:
     def __init__(self):
         self.port: int = 8080
         self.host: str = "0.0.0.0"
         self.log_level: str = "info"
-        self.jwt_key: str = "a"
-        self.algorithm: str = "HS256"
-        self.tokenTTL = 30
-        self.password_salt = "salt"
-        self.with_auth = True
-        self.public_addr = "http://127.0.0.1:8080"
-        self.ml_addr = "http://127.0.0.1:8090"
+        self.ml_retrain_counter = 5
+        self.backend_addr = "http://backend:8080"
+        self.public_addr = "http://127.0.0.1:8090"
+        self.mock = True
 
 
 class Config:
     def __init__(self):
-        self.PostgresConfig = Postgres()
-        self.BackendConfig = Backend()
+        self.pg = Postgres()
+        self.ml = ML()
 
 
 def get_config() -> Config:
@@ -50,10 +50,26 @@ def get_config() -> Config:
 
     config: Config = Config()
     postgres = DictObj(config_json.get("postgres"))
-    backend = DictObj(config_json.get("backend"))
+    ml = DictObj(config_json.get("ml"))
 
     # merging
-    config.PostgresConfig = postgres
-    config.BackendConfig = backend
+    config.pg = postgres
+    config.ml = ml
 
     return config
+
+
+class DB:
+    def __init__(self, conf: Config):
+        pg_conf = conf.pg
+        logging.info("connecting to postgres...")
+        self.conn = psycopg2.connect(
+            dbname=pg_conf.database,
+            user=pg_conf.user,
+            password=pg_conf.password,
+            host=pg_conf.host,
+            port=int(pg_conf.port),
+        )
+        self.conf = conf
+        self.cur = self.conn.cursor()
+        logging.info("connected!")

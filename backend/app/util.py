@@ -7,6 +7,7 @@ import requests
 from models import BookExt, Book
 from PIL import Image
 from urllib.request import Request, urlopen
+import urllib
 from config import Config
 
 
@@ -14,8 +15,12 @@ def fetch_annotation_and_genre(isbn):
     logging.debug("take_annotation_and_genre")
     base_url = "https://www.googleapis.com/books/v1"
     search_url = f"{base_url}/volumes?q=isbn:{isbn}"
-    response = requests.get(search_url)
-    response.raise_for_status()
+    try:
+        response = requests.get(search_url, timeout=0.5)
+        response.raise_for_status()
+    except Exception as e:
+        logging.error(e)
+        return "", ""
 
     try:
         book = response.json()["items"][0]
@@ -67,11 +72,16 @@ def get_image_height_width(image_url: str) -> (int, int):
     req = Request(image_url)
     req.add_header("user-agent",
                    "Mozilla/5.0 (Linux; Android 11; SAMSUNG SM-G973U) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/14.2 Chrome/87.0.4280.141 Mobile Safari/537.36")
-    fp = urlopen(req)
-    mybytes = fp.read()
-    im = Image.open(BytesIO(mybytes))
-    fp.close()
-    return im.size
+
+    try:
+        fp = urlopen(req, timeout=0.5)
+        mybytes = fp.read()
+        im = Image.open(BytesIO(mybytes))
+        fp.close()
+        return im.size
+    except Exception as e:
+        logging.error(e)
+        return 1, 1
 
 
 def is_image_blank(image_url: str) -> bool:

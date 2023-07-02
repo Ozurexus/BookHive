@@ -34,6 +34,10 @@ class DB:
         )
         self.conf = conf
         self.cur = self.conn.cursor()
+
+        # cache
+        self.books_images_checked = set()
+        self.books_genre_checked = set()
         logging.info("connected!")
 
     def map_user_book_wishes(self, books: List[BookExt], user_id: int) -> List[BookExt]:
@@ -51,6 +55,9 @@ class DB:
 
         return books
 
+    def rollback(self):
+        self.conn.rollback()
+
     def map_ratings_book(self, books: List[BookExt], user_id: int) -> List[BookExt]:
         query = """SELECT rating, book_id FROM ratings WHERE user_id=%s"""
         self.cur.execute(query, (user_id,))
@@ -63,6 +70,50 @@ class DB:
                 if book.id == book_id:
                     book.rating = rating
         return books
+
+    def update_images(self, book: BookExt):
+        logging.info(f'updating image urls... {book.id}')
+        query = "UPDATE books SET image_url_s=%s, image_url_m=%s, image_url_l=%s WHERE id=%s"
+        self.cur.execute(query, (book.image_url_s, book.image_url_m, book.image_url_l, book.id))
+        self.conn.commit()
+
+    def handle_images(self, book: BookExt):
+        if book.id in self.books_images_checked:
+            return
+        need_update = False
+
+        addr = self.conf.BackendConfig.public_addr
+        if not book.image_url_s.startswith(addr) and is_image_blank(book.image_url_s):
+            book.image_url_s = generate_image_url(self.conf, "emptyCoverS.png")
+            need_update = True
+
+        if not book.image_url_m.startswith(addr) and is_image_blank(book.image_url_m):
+            book.image_url_m = generate_image_url(self.conf, "emptyCoverM.png")
+            need_update = True
+
+        if not book.image_url_l.startswith(addr) and is_image_blank(book.image_url_l):
+            book.image_url_l = generate_image_url(self.conf, "emptyCoverL.png")
+            need_update = True
+
+        if need_update:
+            self.update_images(book)
+        self.books_images_checked.add(book.id)
+
+    def handle_genre_annotation(self, book: BookExt):
+        if book.id in self.books_genre_checked:
+            return
+        if book.genre == "" and book.annotation == "":
+            annotation, genre = fetch_annotation_and_genre(book.isbn)
+            if annotation == "":
+                annotation = get_default_annotation()
+
+            if genre == "":
+                genre = get_default_genre()
+
+            book.annotation = annotation
+            book.genre = genre
+            self.update_annotation_and_genre(book.id, annotation, genre)
+        self.books_genre_checked.add(book.id)
 
     def parse_books_ext_from_db(
             self, fetchall, user_id: int, need_ratings=False
@@ -87,28 +138,8 @@ class DB:
             if len(book) >= 12:
                 book_model.rating = book[11]
 
-            if book_model.genre == "" and book_model.annotation == "":
-                annotation, genre = fetch_annotation_and_genre(book_model.isbn)
-                if annotation == "":
-                    annotation = get_default_annotation()
-
-                if genre == "":
-                    genre = get_default_genre()
-
-                book_model.annotation = annotation
-                book_model.genre = genre
-                self.update_annotation_and_genre(book_model.id, annotation, genre)
-                time.sleep(0.5)  # TODO: подумать насчет этого
-
-            if is_image_blank(book_model.image_url_s):
-                book_model.image_url_s = generate_image_url(self.conf, "emptyCoverS.png")
-
-            if is_image_blank(book_model.image_url_m):
-                book_model.image_url_m = generate_image_url(self.conf, "emptyCoverM.png")
-
-            if is_image_blank(book_model.image_url_l):
-                book_model.image_url_l = generate_image_url(self.conf, "emptyCoverL.png")
-
+            self.handle_genre_annotation(book_model)
+            self.handle_images(book_model)
             books.append(book_model)
 
         if need_ratings:
@@ -173,6 +204,7 @@ class DB:
             self.conn.commit()
             return
 
+
         # if no just insert
         query = """INSERT INTO ratings (user_id, book_id, rating) 
                     VALUES (%s, %s, %s) """
@@ -181,6 +213,26 @@ class DB:
             self.conn.commit()
         except psycopg2.errors.ForeignKeyViolation:
             raise ConstraintError
+
+        # handling book
+        self.cur.execute("""SELECT * FROM books WHERE id=%s""", (rate_req.book_id,))
+        book = self.cur.fetchall()
+        if len(book):
+            book = book[0]
+            book_obj: Book = Book(id=int(book[0]),
+                isbn=book[1],
+                title=book[2],
+                author=book[3],
+                year_of_publication=int(book[4]),
+                publisher=book[5],
+                image_url_s=book[6],
+                image_url_m=book[7],
+                image_url_l=book[8],
+                genre=book[9],
+                annotation=book[10])
+            self.handle_images(book_obj)
+            self.handle_genre_annotation(book_obj)
+            logging.info("handled genre,annotation,images")
 
     def un_rate_book(self, rate_req: UnRateReq):
         # checking whether already exists

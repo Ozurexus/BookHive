@@ -63,7 +63,7 @@ export const rateBook = (bookId, newRate, userId, accessToken) => {
         body: JSON.stringify({
             book_id: bookId,
             rate: newRate,
-            user_id: userId
+            user_id: parseInt(userId) // схуяли тут вообще строка, в swagger не строка
         })
     })
         .catch(err => console.log(err))

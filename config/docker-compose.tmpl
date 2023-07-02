@@ -51,6 +51,21 @@ services:
         condition: service_completed_successfully
     ports:
       - "{{ backend_port }}:{{ backend_port }}"
+  ml:
+    build:
+      context: ./ml
+      dockerfile: ./Dockerfile
+    networks:
+      - mynet
+    volumes:
+      - ./config.json:/app/config.json
+    depends_on:
+      db_postgres:
+        condition: service_healthy
+      setup:
+        condition: service_completed_successfully
+    ports:
+      - "{{ ml_port }}:{{ ml_port }}"
   nginx-client:
     build:
       context: ./client

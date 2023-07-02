@@ -89,7 +89,7 @@ config = get_config()
 db = DB(config)
 
 # ------------------------------------ML------------------------------------
-ml_client = MlClient(db.conn, atomic_max=config.BackendConfig.ml_retrain_counter)
+ml_client = MlClient(config.BackendConfig.ml_addr)
 
 
 # ------------------------------------STATIC---------------------------------
@@ -104,6 +104,7 @@ async def get_rated_books(user_id):
     try:
         books: List[Book] = db.get_user_recommended_books(user_id)
     except Exception as e:
+        db.rollback()
         logging.error(e)
         raise HTTPException(status_code=500)
     return BooksExtResponse(items=books, size=len(books))
@@ -124,6 +125,7 @@ async def get_recommendations(user_id: int, limit: int = 3):
     try:
         books = db.get_books_by_ids(book_ids, user_id)
     except Exception as e:
+        db.rollback()
         logging.error(e)
         raise HTTPException(status_code=500)
     resp = BooksExtResponse(items=books, size=len(books))
@@ -132,23 +134,29 @@ async def get_recommendations(user_id: int, limit: int = 3):
 
 @app_api.get("/books/find/", response_model=BooksByPatternResponse)
 async def books_find_by_pattern(pattern: str = "", limit: int = 0):
+    if pattern == "":
+        books = []
+        return BooksByPatternResponse(items=books, size=len(books))
     try:
         books: List[BooksByPatternItem] = db.find_books_by_title_pattern(pattern, limit)
     except Exception as e:
+        db.rollback()
         logging.error(e)
         raise HTTPException(status_code=500)
 
     return BooksByPatternResponse(items=books, size=len(books))
 
 
-@app_api.post("/books/rate/")
+@app_api.post("/books/rate/", status_code=200)
 async def books_rate(rate_req: RateReq):
     try:
         db.rate_book(rate_req)
     except ConstraintError as e:
+        db.rollback()
         logging.error(e)
         raise HTTPException(status_code=400, detail="Invalid request body (fix it)")
     except Exception as e:
+        db.rollback()
         logging.error(e)
         raise HTTPException(status_code=500)
 
@@ -158,23 +166,22 @@ async def books_rate(rate_req: RateReq):
         logging.error(e)
         raise HTTPException(status_code=500)
 
-    return JSONResponse(200)
 
-
-@app_api.post("/books/unrate")
+@app_api.post("/books/unrate", status_code=200)
 async def books_rate(rate_req: UnRateReq):
     try:
         db.un_rate_book(rate_req)
     except ConstraintError as e:
+        db.rollback()
         logging.error(e)
         raise HTTPException(status_code=400, detail="Invalid request body (fix it)")
     except Exception as e:
+        db.rollback()
         logging.error(e)
         raise HTTPException(status_code=500)
-    return JSONResponse(200)
 
 
-@app_api.post("/books/wish/")
+@app_api.post("/books/wish/", status_code=200)
 async def wish_un_wish_book(rate_req: WantToReadBookReq):
     """
     If book is already wished - then removes the book from wishes.
@@ -184,14 +191,15 @@ async def wish_un_wish_book(rate_req: WantToReadBookReq):
     try:
         db.wish_unwish_book(rate_req)
     except ConstraintError as e:
+        db.rollback()
         logging.error(e)
         raise HTTPException(
             status_code=400, detail="Invalid request body (book_id or user_id)"
         )
     except Exception as e:
+        db.rollback()
         logging.error(e)
         raise HTTPException(status_code=500)
-    return JSONResponse(200)
 
 
 @app_api.get("/books/wishes/{user_id}", response_model=BooksExtResponse)
@@ -199,6 +207,7 @@ async def get_user_wishes_books(user_id: int):
     try:
         books = db.get_user_favorite_books(user_id)
     except Exception as e:
+        db.rollback()
         logging.error(e)
         raise HTTPException(status_code=500)
     resp = BooksExtResponse(items=books, size=len(books))
@@ -210,6 +219,7 @@ async def get_user_status(user_id: int):
     try:
         review_books_num = db.get_user_reviewed_books_num(user_id)
     except Exception as e:
+        db.rollback()
         logging.error(e)
         raise HTTPException(status_code=500)
 
@@ -233,6 +243,7 @@ async def register_user(register_req: UserRegisterReq):
             detail="User with such login already exists: try choose another login",
         )
     except Exception as e:
+        db.rollback()
         logging.error(e)
         raise HTTPException(status_code=500)
 
@@ -260,6 +271,7 @@ async def login_user(login_req: UserLoginReq):
         logging.error(e)
         raise HTTPException(status_code=404, detail="User not found")
     except Exception as e:
+        db.rollback()
         logging.error(e)
         raise HTTPException(status_code=500)
 
@@ -284,6 +296,7 @@ async def change_user_password(req: ChangePasswordReq):
         logging.error(e)
         raise HTTPException(status_code=404, detail="User not found")
     except Exception as e:
+        db.rollback()
         logging.error(e)
         raise HTTPException(status_code=500)
 

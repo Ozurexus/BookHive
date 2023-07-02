@@ -1,41 +1,38 @@
+import json
 import logging
-
-import pandas as pd
-from ml.als_pandas import train_model
-from atomic import AtomicLong
-
-
-def dump_rating(conn) -> pd.DataFrame:
-    """
-    postgres(ratings) -> pd.Dataframe
-    """
-    dump_query = """SELECT r.id, b.isbn AS isbn, r.user_id AS "user", r.rating AS rating, b.id AS book_id
-                    FROM ratings r JOIN books b ON r.book_id = b.id"""
-    df = pd.read_sql_query(dump_query, conn)
-    return df
+import urllib
+from typing import List
 
 
 class MlClient:
-    def __init__(self, conn, atomic_max=5):
-        self.conn = conn
-        df_rating = dump_rating(self.conn)
-        self.model = train_model(df_rating)
-        self.atomic_max = atomic_max
-        self.counter = AtomicLong(0)
+    def __init__(self, ml_addr: str):
+        self.ml_addr = ml_addr
 
-    def get_recommendations(self, user_id: int, limit: int):
-        return self.model.get_recommendations(user_id, limit)
+    def get_recommendations(self, user_id: int, limit: int = None) -> List[int]:
+        dst_url = f"{self.ml_addr}/books/recommendations/{user_id}"
+        if not limit is None:
+            dst_url += f"?limit={limit}"
+        try:
+            req = urllib.request.Request(dst_url, method='GET')
+            resp = urllib.request.urlopen(req)
+            books_ids = json.loads(resp.read())
+            return books_ids
+        except urllib.error.HTTPError as e:
+            logging.error(f"http error: error={e}")
+        except urllib.error.URLError as e:
+            logging.error(f"url error: error={e}")
+        except Exception as e:
+            logging.error(f"unknown error={e}")
 
     def retrain_model(self):
-        """
-        On new user OR new rating
-
-        Retrain model only on specific counter value
-        """
-        self.counter += 1
-        if self.counter.value % self.atomic_max == 0:
-            logging.debug(f"retraining model: current={self.counter.value}, needed={self.atomic_max}")
-            df_rating = dump_rating(self.conn)
-            self.model = train_model(df_rating)
-            return
-        logging.debug(f"skipping retraining model: current={self.counter.value}, need={self.atomic_max}")
+        dst_url = f"{self.ml_addr}/model/retrain"
+        try:
+            req = urllib.request.Request(dst_url, method='GET')
+            resp = urllib.request.urlopen(req)
+            logging.debug(resp.getcode())
+        except urllib.error.HTTPError as e:
+            logging.error(f"http error: error={e}")
+        except urllib.error.URLError as e:
+            logging.error(f"url error: error={e}")
+        except Exception as e:
+            logging.error(f"unknown error={e}")
