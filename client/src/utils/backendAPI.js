@@ -81,3 +81,16 @@ export const getRatedBooks = (userId, accessToken) => {
         .then(resp => resp.json())
         .catch(err => console.log(err));
 }
+
+export const getRecommendedBooks = (userId, accessToken) => {
+    return fetch(`${backAddr}/api/books/recommendations/${userId}`, {
+        method: "GET",
+        headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        }
+    })
+        .then(resp => resp.json())
+        .catch(err => console.log(err));
+}
