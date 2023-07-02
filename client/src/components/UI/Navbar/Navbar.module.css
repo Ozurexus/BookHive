@@ -7,15 +7,21 @@
 
 .logoimage {
     height: 50px;
-    align-self: center;
-    justify-self: end;
+    margin-top: -7px;
+    /*align-self: center;*/
+    /*justify-self: end;*/
 }
 
 .logo {
+    display: flex;
+    align-items: center;
     height: 50px;
     flex-grow: 0.05;
     margin-left: 30px;
+}
 
+.h_logo{
+    font-size: 30px;
 }
 
 .header {
@@ -41,11 +47,11 @@
 }
 
 .link {
+    font-weight: 600;
     width: 100%;
     height: 100%;
     text-decoration: none;
     color: black;
-    font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -67,7 +73,6 @@
 }
 
 .logout {
-
     flex-grow: 1;
     align-items: center;
     align-self: stretch;

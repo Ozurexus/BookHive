@@ -3,12 +3,16 @@
     grid-template-rows: 70% 13% 17%;
     align-items: center;
     height: 100%;
+    padding-left: 35px;
+    padding-bottom: 40px;
 }
 .chPassBtnDiv{
     justify-self: center;
     align-self: center;
 }
 .chPassBtn{
+    padding-top: 50px;
+    padding-right: 20px;
     background-color: transparent;
     cursor: pointer;
     border: none;
@@ -19,6 +23,8 @@
     filter: brightness(0.2);
 }
 .status {
+    padding-right: 20px;
+    padding-top: 40px;
     font-size: 2vw;
     align-self: center;
     justify-self: center;

@@ -35,7 +35,6 @@ class MlClient:
             logging.info('dumping and training model done ✅')
         except Exception as e:
             logging.error(e + " ❌")
-            exit(0)
         self.atomic_max = atomic_max
         self.counter = AtomicLong(0)
 

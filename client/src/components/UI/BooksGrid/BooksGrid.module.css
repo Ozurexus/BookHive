@@ -1,7 +1,31 @@
-.grid{
+.grid {
+    margin-top: 15px;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
 }
-.gridItem{
+
+.gridItem {
     margin: 10px;
+}
+
+.book {
+    /*border: 4px double aqua;*/
+}
+
+.img {
+    height: 190px;
+    width: 150px;
+}
+
+.p_my_rvw {
+    text-align: center;
+    font-weight: 600;
+    font-size: 25px;
+    /*font-we*/
+}
+
+.div_p {
+    margin-top: 10px;
+    margin-bottom: 40px;
 }

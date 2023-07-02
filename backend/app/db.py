@@ -1,5 +1,8 @@
 import logging
+import queue
+import threading
 import time
+from asyncio import threads
 
 import psycopg2
 
@@ -115,32 +118,25 @@ class DB:
             self.update_annotation_and_genre(book.id, annotation, genre)
         self.books_genre_checked.add(book.id)
 
-    def parse_books_ext_from_db(
-            self, fetchall, user_id: int, need_ratings=False
-    ) -> List[BookExt]:
+    def parse_books_ext_from_db(self, fetchall, user_id: int, need_ratings=False) -> List[BookExt]:
+        lock = threading.Lock()
         books: List[BookExt] = []
-        for book in fetchall:
-            book_model: BookExt = BookExt(
-                id=int(book[0]),
-                isbn=book[1],
-                title=book[2],
-                author=book[3],
-                year_of_publication=int(book[4]),
-                publisher=book[5],
-                image_url_s=book[6],
-                image_url_m=book[7],
-                image_url_l=book[8],
-                genre=book[9],
-                annotation=book[10],
-                rating=None,
-                want_to_read=None,
-            )
-            if len(book) >= 12:
-                book_model.rating = book[11]
 
-            self.handle_genre_annotation(book_model)
-            self.handle_images(book_model)
-            books.append(book_model)
+        def run(b: BookExt):
+            self.handle_genre_annotation(b)
+            self.handle_images(b)
+            with lock:
+                books.append(b)
+
+        threads_list = []
+        for book in fetchall:
+            book_model: BookExt = from_db_book_to_model(book)
+            t = threading.Thread(target=run, args=(book_model,))
+            threads_list.append(t)
+            t.start()
+
+        for t in threads_list:
+            t.join()
 
         if need_ratings:
             books = self.map_ratings_book(books, user_id)
@@ -204,7 +200,6 @@ class DB:
             self.conn.commit()
             return
 
-
         # if no just insert
         query = """INSERT INTO ratings (user_id, book_id, rating) 
                     VALUES (%s, %s, %s) """
@@ -220,16 +215,16 @@ class DB:
         if len(book):
             book = book[0]
             book_obj: Book = Book(id=int(book[0]),
-                isbn=book[1],
-                title=book[2],
-                author=book[3],
-                year_of_publication=int(book[4]),
-                publisher=book[5],
-                image_url_s=book[6],
-                image_url_m=book[7],
-                image_url_l=book[8],
-                genre=book[9],
-                annotation=book[10])
+                                  isbn=book[1],
+                                  title=book[2],
+                                  author=book[3],
+                                  year_of_publication=int(book[4]),
+                                  publisher=book[5],
+                                  image_url_s=book[6],
+                                  image_url_m=book[7],
+                                  image_url_l=book[8],
+                                  genre=book[9],
+                                  annotation=book[10])
             self.handle_images(book_obj)
             self.handle_genre_annotation(book_obj)
             logging.info("handled genre,annotation,images")

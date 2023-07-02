@@ -20,9 +20,7 @@ const Navbar = () => {
         <div className={style.navbar}>
             <div className={style.logo}>
                 <img src={logo} alt="Logo?" className={style.logoimage}/>
-            </div>
-            <div className={style.header}>
-                <h1>BookHive</h1>
+                <h1 className={style.h_logo}>BookHive</h1>
             </div>
             <div className={style.recommendations}>
                 <Link to='/recommendations'>
@@ -35,7 +33,7 @@ const Navbar = () => {
                 </Link>
             </div>
             <div className={style.booksearch}>
-                <BookSearch placeholder={'BookSearch books'}/>
+                <BookSearch placeholder={'Search books'}/>
             </div>
             <div className={style.logout} onClick={logout}>
                 <div className={style.logoutTxt}>Log out</div>

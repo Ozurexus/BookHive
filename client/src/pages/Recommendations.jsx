@@ -13,7 +13,7 @@ const Recommendations = () => {
             <div className={style.container}>
                 {recBooks.map((book) => (
                     <div key={book.id} className={style.book}>
-                        <img src={book.image_url_l} alt={book.title}/>
+                        <img src={book.image_url_l} alt={book.title} className={style.img}/>
 
                         <button className={style.wantToReadBtn}>Want to read</button>
                     </div>

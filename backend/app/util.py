@@ -92,3 +92,24 @@ def is_image_blank(image_url: str) -> bool:
 def generate_image_url(config: Config, image_name: str) -> str:
     image_url = config.BackendConfig.public_addr + f"/static/{image_name}"
     return image_url
+
+
+def from_db_book_to_model(book) -> BookExt:
+    book_model: BookExt = BookExt(
+        id=int(book[0]),
+        isbn=book[1],
+        title=book[2],
+        author=book[3],
+        year_of_publication=int(book[4]),
+        publisher=book[5],
+        image_url_s=book[6],
+        image_url_m=book[7],
+        image_url_l=book[8],
+        genre=book[9],
+        annotation=book[10],
+        rating=None,
+        want_to_read=None,
+    )
+    if len(book) >= 12:
+        book_model.rating = book[11]
+    return book_model
