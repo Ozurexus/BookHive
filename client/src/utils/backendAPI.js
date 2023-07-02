@@ -82,8 +82,8 @@ export const getRatedBooks = (userId, accessToken) => {
         .catch(err => console.log(err));
 }
 
-export const getRecommendedBooks = (userId, accessToken) => {
-    return fetch(`${backAddr}/api/books/recommendations/${userId}`, {
+export const getRecommendedBooks = (userId, accessToken, limit=5) => {
+    return fetch(`${backAddr}/api/books/recommendations/${userId}?`+new URLSearchParams({limit: limit}), {
         method: "GET",
         headers: {
             'accept': 'application/json',
