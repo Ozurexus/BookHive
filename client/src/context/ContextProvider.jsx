@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {AuthContext, UserContext} from "./index";
-import {getRatedBooks, getRecommendedBooks, getUserStatus} from "../utils/backendAPI";
+import {getRatedBooks, getRecommendedBooks, getUserStatus, getWishesBooks} from "../utils/backendAPI";
 
 function ContextProvider({children}) {
     const [isAuth, setIsAuth] = useState(false);
@@ -13,6 +13,7 @@ function ContextProvider({children}) {
     const [recBooks, setRecBooks] = useState([]);
     const [status, setStatus] = useState("");
     const [numReviewedBooks, setNumReviewedBooks] = useState(0);
+    const [wishesBooks, setWishesBooks] = useState([])
 
     useEffect(() => {
         console.log("ContextProvider-UseEffect")
@@ -35,6 +36,10 @@ function ContextProvider({children}) {
                 console.log("Reviewed books:", obj.reviewed_books);
                 setStatus(obj.status);
                 setNumReviewedBooks(obj.reviewed_books)
+            })
+            getWishesBooks(localStorage.getItem('userId'), localStorage.getItem('accessToken')).then((obj) => {
+                console.log(obj.items);
+                setWishesBooks(obj.items);
             })
         }
         setLoading(false);
@@ -60,7 +65,9 @@ function ContextProvider({children}) {
                 setUserLogin,
                 status,
                 numReviewedBooks,
-                setStatus
+                setStatus,
+                wishesBooks,
+                setWishesBooks
             }}>
                 {children}
             </UserContext.Provider>

@@ -107,3 +107,45 @@ export const getUserStatus = (userId, accessToken) => {
         .then(resp => resp.json())
         .catch(err => console.log(err));
 }
+export const getWishesBooks = (userId, accessToken) => {
+    return fetch(`${backAddr}/api/books/wishes/${userId}`, {
+        method: "GET",
+        headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        }
+    })
+        .then(resp => resp.json())
+        .catch(err => console.log(err));
+}
+export const addWishBook = (bookId, userId, accessToken) => {
+    return fetch(`${backAddr}/api/books/wish/`, {
+        method: "POST",
+        headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+            book_id: bookId,
+            user_id: parseInt(userId) // схуяли тут вообще строка, в swagger не строка
+        })
+    })
+        .catch(err => console.log(err))
+}
+export const unRateBook = (bookId, userId, accessToken) => {
+    return fetch(`${backAddr}/api/books/unrate/`, {
+        method: "POST",
+        headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+            book_id: bookId,
+            user_id: parseInt(userId) // схуяли тут вообще строка, в swagger не строка
+        })
+    })
+        .catch(err => console.log(err))
+}

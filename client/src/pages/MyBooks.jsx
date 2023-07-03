@@ -1,10 +1,14 @@
-import React from "react";
+import React, {useContext, useState} from "react";
 import Navbar from "../components/UI/Navbar/Navbar";
 import AccountInfo from "../components/UI/AccountInfo/AccountInfo";
 import style from "../styles/MyBooks.module.css"
 import BooksGrid from "../components/UI/BooksGrid/BooksGrid";
+import {UserContext} from "../context";
 
 const MyBooks = () => {
+    const {books, wishesBooks} = useContext(UserContext);
+    const booksInGrid = [books, wishesBooks];
+    const [booksType, setBooksType] = useState(0);
     return (
         <div className={"page"}>
             <Navbar/>
@@ -14,12 +18,12 @@ const MyBooks = () => {
                         <AccountInfo/>
                     </div>
                     <div className={style.otherOptions}>
-                        <button className={style.myRevBtn}>My reviews</button>
-                        <button className={style.wantToReadBtn}>Want to read</button>
+                        <button className={booksType===0 ? style.myRevBtnActive : style.myRevBtn} onClick={()=>{setBooksType(0)}}>My reviews</button>
+                        <button className={booksType===1 ? style.wantToReadBtnActive : style.wantToReadBtn} onClick={()=>{setBooksType(1)}}>Want to read</button>
                     </div>
                 </div>
                 <div className={style.booksgrid}>
-                    <BooksGrid/>
+                    <BooksGrid books={booksInGrid[booksType]} header={booksType===0 ? "My reviews" : "Want to read"}/>
                 </div>
             </div>
         </div>

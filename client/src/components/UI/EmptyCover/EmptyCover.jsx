@@ -3,7 +3,7 @@ import style from './EmptyCover.module.css'
 
 function EmptyCover({name, size}) { // size = {"S", "M", "L"}, for small, medium and large images correspondingly
     console.log(size);
-    const imageSizes = {"S": [75, 60], "M": [190, 150], "L": [550, 400]}
+    const imageSizes = {"S": [75, 60], "M": [190, 150], "L": [520, 380]}
     const fontSize = {"S": "7px", "M": "17px", "L": "35px"}
     const [h, w] = imageSizes[size];
     return (

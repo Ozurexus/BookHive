@@ -3,15 +3,14 @@ import {UserContext} from "../../../context";
 import EmptyCover from "../EmptyCover/EmptyCover";
 import style from "./BooksGrid.module.css"
 
-function BooksGrid() {
-    const {books} = useContext(UserContext);
+function BooksGrid({books, header}) {
     console.log('BooksGrid render')
     console.log(books);
 
     return (
         <>
             <div className={style.div_p}>
-                <p className={style.p_my_rvw}>My reviews</p>
+                <p className={style.p_my_rvw}>{header}</p>
             </div>
             <div className={style.grid}>
                 {books.map((book) => (
