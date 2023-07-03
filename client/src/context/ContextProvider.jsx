@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {AuthContext, UserContext} from "./index";
-import {getRatedBooks, getRecommendedBooks} from "../utils/backendAPI";
+import {getRatedBooks, getRecommendedBooks, getUserStatus} from "../utils/backendAPI";
 
 function ContextProvider({children}) {
     const [isAuth, setIsAuth] = useState(false);
@@ -11,7 +11,8 @@ function ContextProvider({children}) {
     const [books, setBooks] = useState([]);
     const [userLogin, setUserLogin] = useState('');
     const [recBooks, setRecBooks] = useState([]);
-
+    const [status, setStatus] = useState("");
+    const [numReviewedBooks, setNumReviewedBooks] = useState(0);
 
     useEffect(() => {
         console.log("ContextProvider-UseEffect")
@@ -24,11 +25,17 @@ function ContextProvider({children}) {
                 .then(obj => {
                     setBooks(obj.items);
                 })
-            getRecommendedBooks(localStorage.getItem('userId'), localStorage.getItem('accessToken'))
+            getRecommendedBooks(localStorage.getItem('userId'), localStorage.getItem('accessToken'), 10)
                 .then((obj) => {
                     console.log(obj.items);
                     setRecBooks(obj.items);
                 })
+            getUserStatus(localStorage.getItem('userId'), localStorage.getItem('accessToken')).then((obj) => {
+                console.log(obj.status);
+                console.log(obj.reviewed_books);
+                setStatus(obj.status);
+                setNumReviewedBooks(obj.reviewed_books)
+            })
         }
         setLoading(false);
     }, [isAuth]);
@@ -50,7 +57,10 @@ function ContextProvider({children}) {
                 recBooks,
                 setRecBooks,
                 userLogin,
-                setUserLogin
+                setUserLogin,
+                status,
+                numReviewedBooks,
+                setStatus
             }}>
                 {children}
             </UserContext.Provider>

@@ -94,3 +94,16 @@ export const getRecommendedBooks = (userId, accessToken, limit=5) => {
         .then(resp => resp.json())
         .catch(err => console.log(err));
 }
+
+export const getUserStatus = (userId, accessToken) => {
+    return fetch(`${backAddr}/api/status/${userId}`, {
+        method: "GET",
+        headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        }
+    })
+        .then(resp => resp.json())
+        .catch(err => console.log(err));
+}

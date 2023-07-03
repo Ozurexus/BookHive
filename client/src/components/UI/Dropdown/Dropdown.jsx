@@ -38,10 +38,21 @@ function Dropdown({booksArr, ...props}) {
             <div className={style.dropdownContent}>
                 {booksArr.map((book) =>
                     <div key={book.id} className={style.dropdownItem}>
-                        <img src={book.image_url_s} alt={'book'}/>
-                        <p className={style.prghTitle}>{book.title}</p>
-                        <p className={style.prghAuthor}>{book.author}</p>
-                        <MyButton onClick={() => showBook(book)}>Rate</MyButton>
+                        <div className={style.imgContainer}>
+                            {book.image_url_s !== "http://127.0.0.1:8080/static/emptyCoverS.png"
+                                ? <img src={book.image_url_s} alt={book.title} className={style.img}/>
+                                : <EmptyCover name={book.title} size='S'/>
+                            }
+                        </div>
+                        <div className={style.title}>
+                            <p className={style.prghTitle}>{book.title}</p>
+                        </div>
+                        <div className={style.author}>
+                            <p className={style.prghAuthor}>{book.author}</p>
+                        </div>
+                        <div className={style.rateBtn}>
+                            <MyButton onClick={() => showBook(book)}>Rate</MyButton>
+                        </div>
                     </div>
                 )}
             </div>

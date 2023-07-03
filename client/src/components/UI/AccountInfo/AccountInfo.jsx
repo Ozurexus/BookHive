@@ -7,12 +7,11 @@ import PassChangeForm from "../PassChangeForm/PassChangeForm";
 
 
 function AccountInfo(props) {
-    const {books, userLogin} = useContext(UserContext);
+    const {books, userLogin, status} = useContext(UserContext);
     const [passVisible, setPassVisible] = useState(false);
 
 
     console.log("AccountInfo render")
-    let status = "Cool guy";
     return (
         <div className={style.accountInfo}>
             <div className={style.accountInfoWithoutStatus}>

@@ -16,9 +16,10 @@ function BooksGrid() {
             <div className={style.grid}>
                 {books.map((book) => (
                     <div key={book.id} className={style.book}>
-                        <img src={book.image_url_m} alt={book.title} className={style.img}/>
-                        <p>{book.title}</p>
-                        {/*<EmptyCover name='aha' size='M'/>*/}
+                        {book.image_url_m !== "http://127.0.0.1:8080/static/emptyCoverM.png"
+                        ? <img src={book.image_url_m} alt={book.title} className={style.img}/>
+                        : <EmptyCover name={book.title} size='M'/>
+                        }
                     </div>
                 ))}
             </div>

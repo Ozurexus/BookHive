@@ -23,12 +23,31 @@
     justify-content: space-between;
     align-content: center;
 }
-.dropdownItem p {
+.imgContainer{
+    height: 75px;
+    width: 60px;
+}
+.title{
+    flex: 2;
+}
+.author{
+    flex: 1;
+}
+.rateBtn{
+    flex: 1;
+}
+.dropdownItem div {
     align-self: center;
+    justify-content: center;
+    text-align: center;
 }
 .prghTitle, .prghAuthor{
     font-size: 13px;
-    margin:3px;
+    margin-left: 10px;
+}
+.img{
+    height: 75px;
+    width: 60px;
 }
 .dropdownContent div:hover {
     background-color: #f1f1f1;

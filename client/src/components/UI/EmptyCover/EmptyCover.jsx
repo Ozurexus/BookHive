@@ -3,21 +3,26 @@ import style from './EmptyCover.module.css'
 
 function EmptyCover({name, size}) { // size = {"S", "M", "L"}, for small, medium and large images correspondingly
     console.log(size);
-    const imageSizes = {"S": [75, 60], "M": [160, 130], "L": [475, 450]}
-    const fontSize = {"S": "6.2px", "M": "14px", "L": "39px"}
+    const imageSizes = {"S": [75, 60], "M": [190, 150], "L": [550, 400]}
+    const fontSize = {"S": "7px", "M": "17px", "L": "35px"}
     const [h, w] = imageSizes[size];
     return (
         <div style={{
-            backgroundImage: 'url(/emptyCover' + size + '.png)',
+            backgroundImage: "url("+'/emptyCover' + size + '.png'+")",
+            backgroundSize: "100% 100%",
             height: h,
             width: w,
             display: "flex",
             justifyContent: "center",
+            textAlign: 'center',
             alignItems: "center",
-            fontSize: fontSize[size]
+            fontSize: fontSize[size],
+
         }}>
             <p className={style.p}>{name}</p>
+
         </div>
+
     );
 }
 

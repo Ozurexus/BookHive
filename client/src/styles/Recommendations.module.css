@@ -18,6 +18,14 @@
 .wantToReadBtn{
     margin-top: auto;
     margin-bottom: 20px;
+    background-color: #BEEDA2;
+    border-radius: 10px;
+    padding: 9px 21px;
+    border: none;
+    font-weight: bolder;
+}
+.wantToReadBtn:hover{
+    filter: brightness(0.87);
 }
 
 .img{
