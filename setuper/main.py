@@ -95,7 +95,7 @@ def dump_from_csv():
         print(f"⚠️  seems data is already imported - skipping ({cnt} found)")
     else:
         # users with default admin user
-        users = [(i, f"login_{i}", get_password_hash(f"password_{i}")) for i in range(1, 278859)]
+        users = [(i, f"login_{i}", get_password_hash(f"password_{i}")) for i in range(1, 4229)]
         users.append((len(users) + 1, 'admin', get_password_hash('admin')))
 
         records_list_template = ",".join(["%s"] * len(users[0]))

@@ -23,8 +23,8 @@
     "host": "0.0.0.0",
     "port": "8090",
     "log_level": "info",
-    "mock": true,
-    "ml_retrain_counter": 20,
+    "mock": false,
+    "ml_retrain_counter": 3,
     "backend_addr": "http://backend:8080",
     "public_addr": "http://127.0.0.1:8090"
   },
