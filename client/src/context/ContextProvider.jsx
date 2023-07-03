@@ -31,8 +31,8 @@ function ContextProvider({children}) {
                     setRecBooks(obj.items);
                 })
             getUserStatus(localStorage.getItem('userId'), localStorage.getItem('accessToken')).then((obj) => {
-                console.log(obj.status);
-                console.log(obj.reviewed_books);
+                console.log("User status:", obj.status);
+                console.log("Reviewed books:", obj.reviewed_books);
                 setStatus(obj.status);
                 setNumReviewedBooks(obj.reviewed_books)
             })

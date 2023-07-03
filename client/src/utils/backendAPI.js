@@ -96,7 +96,7 @@ export const getRecommendedBooks = (userId, accessToken, limit=5) => {
 }
 
 export const getUserStatus = (userId, accessToken) => {
-    return fetch(`${backAddr}/api/status/${userId}`, {
+    return fetch(`${backAddr}/api/user/status/${userId}`, {
         method: "GET",
         headers: {
             'accept': 'application/json',
