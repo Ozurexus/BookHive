@@ -161,12 +161,12 @@ class DB:
         self.cur.execute(select_query, (user_id,))
         return self.parse_books_ext_from_db(self.cur.fetchall(), user_id)
 
-    def find_books_by_title_pattern(
-            self, pattern: str, limit: int = 0
-    ) -> List[BooksByPatternItem]:
+    def find_books_by_title_pattern(self, pattern: str, limit: int = 0, by_author: bool = False) -> List[BooksByPatternItem]:
         query = """SELECT id, title, author, image_url_s, image_url_m, image_url_l
         FROM books WHERE LOWER(title) LIKE (%s)
         """
+        if by_author:
+            query = query.replace("LOWER(title)", "LOWER(author)")
         pattern = pattern + "%"
         if limit > 0:
             query += " LIMIT %s"

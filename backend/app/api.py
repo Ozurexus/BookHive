@@ -133,12 +133,17 @@ async def get_recommendations(user_id: int, limit: int = 3):
 
 
 @app_api.get("/books/find/", response_model=BooksByPatternResponse)
-async def books_find_by_pattern(pattern: str = "", limit: int = 0):
+async def books_find_by_pattern(pattern: str = "", limit: int = 0, by_author: bool = False):
+    """
+    limit: ограничение на результат
+
+    by_author: поиск по автору (если не стоит флаг, то по книге)
+    """
     if pattern == "":
         books = []
         return BooksByPatternResponse(items=books, size=len(books))
     try:
-        books: List[BooksByPatternItem] = db.find_books_by_title_pattern(pattern, limit)
+        books: List[BooksByPatternItem] = db.find_books_by_title_pattern(pattern, limit, by_author)
     except Exception as e:
         db.rollback()
         logging.error(e)
