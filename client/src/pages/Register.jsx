@@ -19,7 +19,7 @@ const Register = () => {
                 register({login: logRef.current.value, password: passRef.current.value})
                     .then(newUser => {
                         if (newUser.detail)
-                            alert('User alerady exists')
+                            alert('User already exists')
                         else {
                             alert('User created');
                             navigate('/login');

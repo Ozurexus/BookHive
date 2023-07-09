@@ -4,6 +4,7 @@ import {AuthContext, UserContext} from "../context";
 import style from "../styles/Recommendations.module.css"
 import EmptyCover from "../components/UI/EmptyCover/EmptyCover";
 import {addWishBook} from "../utils/backendAPI";
+import BookInfo from "../components/UI/BookInfo/BookInfo";
 
 const Recommendations = () => {
     const {recBooks, wishesBooks, setWishesBooks} = useContext(UserContext);
@@ -15,10 +16,7 @@ const Recommendations = () => {
             <div className={style.container}>
                 {recBooks.map((book) => (
                     <div key={book.id} className={style.book}>
-                        {book.image_url_l !== "http://127.0.0.1:8080/static/emptyCoverL.png"
-                            ? <img src={book.image_url_l} alt={book.title} className={style.img}/>
-                            : <EmptyCover name={book.title} size='L'/>
-                        }
+                        <BookInfo book={book}/>
                         <button className={style.wantToReadBtn} onClick={() => {
                             if(!wishesBooks.includes(book)) {
                                 alert(`You add "${book.title}" to your wishlist!`);

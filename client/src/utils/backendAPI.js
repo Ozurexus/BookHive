@@ -63,7 +63,7 @@ export const rateBook = (bookId, newRate, userId, accessToken) => {
         body: JSON.stringify({
             book_id: bookId,
             rate: newRate,
-            user_id: parseInt(userId) // схуяли тут вообще строка, в swagger не строка
+            user_id: userId // схуяли тут вообще строка, в swagger не строка ** а шоб все охуели
         })
     })
         .catch(err => console.log(err))
@@ -129,7 +129,7 @@ export const addWishBook = (bookId, userId, accessToken) => {
         },
         body: JSON.stringify({
             book_id: bookId,
-            user_id: parseInt(userId) // схуяли тут вообще строка, в swagger не строка
+            user_id: userId // схуяли тут вообще строка, в swagger не строка ** а шоб все охуели
         })
     })
         .catch(err => console.log(err))
@@ -144,7 +144,7 @@ export const unRateBook = (bookId, userId, accessToken) => {
         },
         body: JSON.stringify({
             book_id: bookId,
-            user_id: parseInt(userId) // схуяли тут вообще строка, в swagger не строка
+            user_id: userId // схуяли тут вообще строка, в swagger не строка ** а шоб все охуели
         })
     })
         .catch(err => console.log(err))

@@ -59,7 +59,7 @@ function Dropdown({booksArr, ...props}) {
             <MyModal visible={modal} setVisible={() => {
                 setModal(false);
                 if (pickedRate > 0) {
-                    rateBook(pickedBook.bookId, pickedRate, userId, accessToken)
+                    rateBook(pickedBook.bookId, pickedRate*2, userId, accessToken)
                         .then(resp => console.log(resp));
                     getRatedBooks(userId, accessToken)
                         .then((obj) => {
@@ -73,6 +73,7 @@ function Dropdown({booksArr, ...props}) {
                 <Rating
                     name="simple-controlled"
                     value={pickedRate}
+                    precision={0.5}
                     onChange={(event, newValue) => {
                         setPickedRate(newValue);
                     }}
