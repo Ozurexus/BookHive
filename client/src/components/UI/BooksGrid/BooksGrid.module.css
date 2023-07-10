@@ -21,11 +21,19 @@
 .p_my_rvw {
     text-align: center;
     font-weight: 600;
-    font-size: 25px;
-    /*font-we*/
+    font-size: 35px;
 }
 
 .div_p {
     margin-top: 10px;
     margin-bottom: 40px;
+}
+.noBooksDiv{
+    align-self: center;
+    justify-content: center;
+    display: flex;
+}
+.noBooksDiv p{
+    color: rgb(120, 120, 120);
+    font-size: 20px;
 }

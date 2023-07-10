@@ -2,14 +2,12 @@
     display: flex;
     overflow-x: auto;
     height: 80vh;
-    gap: 20px;
     scrollbar-gutter: stable both-edges;
     margin: 30px;
 }
 .book{
     background-color: transparent;
     flex-direction: column;
-    min-width: 450px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -32,4 +30,10 @@
 .img{
     height: 520px;
     width: 380px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.bookInfo{
+    background-color: transparent;
+    display: flex;
+
 }

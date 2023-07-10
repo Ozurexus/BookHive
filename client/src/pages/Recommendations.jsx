@@ -15,18 +15,21 @@ const Recommendations = () => {
             <Navbar></Navbar>
             <div className={style.container}>
                 {recBooks.map((book) => (
-                    <div key={book.id} className={style.book}>
+                    <div key={book.id} className={style.bookInfo}>
+                        <div className={style.book}>
+                            <img src={book.image_url_l} alt={book.title} className={style.img}/>
+                            <button className={style.wantToReadBtn} onClick={() => {
+                                if(!wishesBooks.includes(book)) {
+                                    alert(`You add "${book.title}" to your wishlist!`);
+                                    setWishesBooks([...wishesBooks, book]);
+                                    addWishBook(book.id, userId, accessToken).then(r => {
+                                        console.log("Add book:", book.id, "to wishlist of user", userId)
+                                    })
+                                }
+                            }}>Want to read
+                            </button>
+                        </div>
                         <BookInfo book={book}/>
-                        <button className={style.wantToReadBtn} onClick={() => {
-                            if(!wishesBooks.includes(book)) {
-                                alert(`You add "${book.title}" to your wishlist!`);
-                                setWishesBooks([...wishesBooks, book]);
-                                addWishBook(book.id, userId, accessToken).then(r => {
-                                    console.log("Add book:", book.id, "to wishlist of user", userId)
-                                })
-                            }
-                        }}>Want to read
-                        </button>
                     </div>
                 ))}
 

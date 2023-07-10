@@ -9,29 +9,32 @@ function BookInfo({book}) {
     const {userId, accessToken} = useContext(AuthContext);
     const {setBooks} = useContext(UserContext);
     return (
-        <div>
-            <img src={book.image_url_l} alt={book.title} className={style.img}/>
-            <Rating
-                name="no-value"
-                value={book.rating}
-                precision={0.5}
-                onChange={(event, newValue) => {
-                    console.log(newValue);
-                    setRate(newValue);
-                    rateBook(book.id, newValue*2, userId, accessToken)
-                        .then(resp => console.log(resp));
-                    getRatedBooks(userId, accessToken)
-                        .then((obj) => {
-                            setBooks(obj.items);
-                        })
-                    alert("Book rated");
-                }}
-            />
-            <h2>{book.title}</h2>
-            <h2>{book.author}</h2>
-            <h3>Genre: {book.genre}</h3>
-            <h3>Annotation</h3>
-            <p>{book.annotation}</p>
+        <div className={style.container}>
+            <div className={style.info}>
+                <Rating
+                    name="no-value"
+                    value={rate}
+                    precision={0.5}
+                    onChange={(event, newValue) => {
+                        console.log(newValue);
+                        setRate(newValue);
+                        rateBook(book.id, newValue * 2, userId, accessToken)
+                            .then(resp => console.log(resp));
+                        getRatedBooks(userId, accessToken)
+                            .then((obj) => {
+                                setBooks(obj.items);
+                            })
+                        alert("Book rated");
+                    }}
+                />
+                <h2 className={style.h2}>{book.title}</h2>
+                <h2 className={style.h2}>{book.author}</h2>
+                <h3 className={style.h3}>Genre: {book.genre}</h3>
+                <h3 className={style.h3}>Annotation</h3>
+                <div className={style.p}>
+                    <p>{book.annotation}</p>
+                </div>
+            </div>
         </div>
     );
 }
