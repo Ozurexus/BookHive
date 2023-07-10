@@ -38,9 +38,13 @@ class DB:
         self.conf: Config = conf
         self.cur = self.conn.cursor()
 
+        # google api service
+        self.google_api = GoogleApiService(self.conf)
+
         # cache
         self.books_images_checked = set()
         self.books_genre_checked = set()
+        self.books_checked = set()
         logging.info("connected!")
 
     def map_user_book_wishes(self, books: List[BookExt], user_id: int) -> List[BookExt]:
@@ -86,15 +90,18 @@ class DB:
         need_update = False
 
         addr = self.conf.BackendConfig.public_addr
-        if not book.image_url_s.startswith(addr) and is_image_blank(book.image_url_s, self.conf.BackendConfig.api_request_timeout):
+        if not book.image_url_s.startswith(addr) and is_image_blank(book.image_url_s,
+                                                                    self.conf.BackendConfig.api_request_timeout):
             book.image_url_s = generate_image_url(self.conf, "emptyCoverS.png")
             need_update = True
 
-        if not book.image_url_m.startswith(addr) and is_image_blank(book.image_url_m, self.conf.BackendConfig.api_request_timeout):
+        if not book.image_url_m.startswith(addr) and is_image_blank(book.image_url_m,
+                                                                    self.conf.BackendConfig.api_request_timeout):
             book.image_url_m = generate_image_url(self.conf, "emptyCoverM.png")
             need_update = True
 
-        if not book.image_url_l.startswith(addr) and is_image_blank(book.image_url_l, self.conf.BackendConfig.api_request_timeout):
+        if not book.image_url_l.startswith(addr) and is_image_blank(book.image_url_l,
+                                                                    self.conf.BackendConfig.api_request_timeout):
             book.image_url_l = generate_image_url(self.conf, "emptyCoverL.png")
             need_update = True
 
@@ -102,16 +109,32 @@ class DB:
             self.update_images(book)
         self.books_images_checked.add(book.id)
 
+    def handle_book(self, book_obj):
+        if book_obj.id in self.books_checked:
+            return
+        """ genre, image, etc..."""
+        self.handle_genre_annotation(book_obj)
+        if book_obj.image_url_l != "":
+            logging.info(f"not empty image book_id:{book_obj.id}, link={book_obj.image_url_l} - OK")
+        self.handle_images(book_obj)
+        self.books_checked.add(book_obj.id)
+
     def handle_genre_annotation(self, book: BookExt):
         if book.id in self.books_genre_checked:
             return
         if book.genre == "" and book.annotation == "":
-            annotation, genre = fetch_annotation_and_genre(book.isbn, self.conf.BackendConfig.api_request_timeout)
+            annotation, genre, image_link = self.google_api.get_annot_genre_image(book.isbn)
             if annotation == "":
                 annotation = get_default_annotation()
 
             if genre == "":
                 genre = get_default_genre()
+
+            if image_link != "":
+                book.image_url_l = image_link
+                book.image_url_m = image_link
+                book.image_url_s = image_link
+                self.update_images(book)
 
             book.annotation = annotation
             book.genre = genre
@@ -123,8 +146,7 @@ class DB:
         books: List[BookExt] = []
 
         def run(b: BookExt):
-            self.handle_genre_annotation(b)
-            self.handle_images(b)
+            self.handle_book(b)
             with lock:
                 books.append(b)
 
@@ -162,7 +184,7 @@ class DB:
         return self.parse_books_ext_from_db(self.cur.fetchall(), user_id)
 
     def find_books_by_title_pattern(self, pattern: str, limit: int = 0, by_author: bool = False) -> List[BooksByPatternItem]:
-        query = """SELECT id, title, author, image_url_s, image_url_m, image_url_l
+        query = """SELECT id, title, author, image_url_s, image_url_m, image_url_l, genre, annotation, isbn
         FROM books WHERE LOWER(title) LIKE (%s)
         """
         if by_author:
@@ -175,7 +197,7 @@ class DB:
             self.cur.execute(query, (pattern,))
 
         def run(b):
-            self.handle_images(b)
+            self.handle_book(b)
 
         books = []
         for item in self.cur.fetchall():
@@ -186,7 +208,10 @@ class DB:
                     author=item[2],
                     image_url_s=item[3],
                     image_url_m=item[4],
-                    image_url_l=item[5]
+                    image_url_l=item[5],
+                    genre=item[6],
+                    annotation=item[7],
+                    isbn=item[8]
                 )
             )
 
@@ -240,8 +265,8 @@ class DB:
                                   image_url_l=book[8],
                                   genre=book[9],
                                   annotation=book[10])
-            self.handle_images(book_obj)
-            self.handle_genre_annotation(book_obj)
+            self.handle_book(book_obj)
+
             logging.info("handled genre,annotation,images")
 
     def un_rate_book(self, rate_req: UnRateReq):

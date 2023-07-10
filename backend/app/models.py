@@ -38,6 +38,9 @@ class BooksByPatternItem(BaseModel):
     id: int
     title: str
     author: str
+    genre: str
+    annotation: str
+    isbn: str
     image_url_s: str
     image_url_m: str
     image_url_l: str

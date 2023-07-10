@@ -11,33 +11,47 @@ import urllib
 from config import Config
 
 
-def fetch_annotation_and_genre(isbn, timeout):
-    logging.debug("take_annotation_and_genre")
-    base_url = "https://www.googleapis.com/books/v1"
-    search_url = f"{base_url}/volumes?q=isbn:{isbn}"
-    try:
-        response = requests.get(search_url, timeout=timeout)
-        response.raise_for_status()
-    except Exception as e:
-        logging.error(e)
-        return "", ""
+class GoogleApiService:
+    def __init__(self, conf: Config):
+        self.api_key = conf.BackendConfig.api_google_key
+        self.timeout = conf.BackendConfig.api_request_timeout
 
-    try:
-        book = response.json()["items"][0]
-    except Exception:
-        return "", ""
+    def get_annot_genre_image(self, isbn) -> tuple[str, str, str]:
+        logging.debug("take_annotation_and_genre")
+        base_url = "https://www.googleapis.com/books/v1"
+        search_url = f"{base_url}/volumes?q=isbn:{isbn}&key={self.api_key}"
+        try:
+            response = requests.get(search_url, timeout=self.timeout)
+            response.raise_for_status()
+        except Exception as e:
+            logging.error(e)
+            return "", "", ""
 
-    try:
-        annotation = book["volumeInfo"]["description"]
-    except Exception:
-        annotation = ""
+        try:
+            book = response.json()["items"][0]
+        except Exception as e:
+            logging.error(e)
+            return "", "", ""
 
-    try:
-        genre = book["volumeInfo"]["categories"][0]
-        genre = genre.split(" / ")[0]
-    except Exception:
-        genre = ""
-    return annotation, genre
+        try:
+            annotation = book["volumeInfo"]["description"]
+        except Exception:
+            annotation = ""
+
+        # genre
+        try:
+            genre = book["volumeInfo"]["categories"][0]
+            genre = genre.split(" / ")[0]
+        except Exception:
+            genre = ""
+
+        # image_link
+        try:
+            image_link = book["volumeInfo"]["imageLinks"]["thumbnail"]
+        except Exception as e:
+            image_link = ""
+
+        return annotation, genre, image_link
 
 
 # - 0-10 books read: Newbie Reader
