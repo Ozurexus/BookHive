@@ -11,12 +11,12 @@ import urllib
 from config import Config
 
 
-def fetch_annotation_and_genre(isbn):
+def fetch_annotation_and_genre(isbn, timeout):
     logging.debug("take_annotation_and_genre")
     base_url = "https://www.googleapis.com/books/v1"
     search_url = f"{base_url}/volumes?q=isbn:{isbn}"
     try:
-        response = requests.get(search_url, timeout=0.5)
+        response = requests.get(search_url, timeout=timeout)
         response.raise_for_status()
     except Exception as e:
         logging.error(e)
@@ -68,13 +68,13 @@ def from_books_ext_to_books(books_ext: List[BookExt]) -> List[Book]:
     return [Book(**book_ext.dict()) for book_ext in books_ext]
 
 
-def get_image_height_width(image_url: str) -> (int, int):
+def get_image_height_width(image_url: str, timeout: float) -> (int, int):
     req = Request(image_url)
     req.add_header("user-agent",
                    "Mozilla/5.0 (Linux; Android 11; SAMSUNG SM-G973U) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/14.2 Chrome/87.0.4280.141 Mobile Safari/537.36")
 
     try:
-        fp = urlopen(req, timeout=0.5)
+        fp = urlopen(req, timeout=timeout)
         mybytes = fp.read()
         im = Image.open(BytesIO(mybytes))
         fp.close()
@@ -84,8 +84,8 @@ def get_image_height_width(image_url: str) -> (int, int):
         return 1, 1
 
 
-def is_image_blank(image_url: str) -> bool:
-    h, w = get_image_height_width(image_url)
+def is_image_blank(image_url: str, timeout: float) -> bool:
+    h, w = get_image_height_width(image_url, timeout)
     return h == 1 and w == 1
 
 

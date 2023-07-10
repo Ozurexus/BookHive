@@ -35,7 +35,7 @@ class DB:
             host=pg_conf.host,
             port=int(pg_conf.port),
         )
-        self.conf = conf
+        self.conf: Config = conf
         self.cur = self.conn.cursor()
 
         # cache
@@ -86,15 +86,15 @@ class DB:
         need_update = False
 
         addr = self.conf.BackendConfig.public_addr
-        if not book.image_url_s.startswith(addr) and is_image_blank(book.image_url_s):
+        if not book.image_url_s.startswith(addr) and is_image_blank(book.image_url_s, self.conf.BackendConfig.api_request_timeout):
             book.image_url_s = generate_image_url(self.conf, "emptyCoverS.png")
             need_update = True
 
-        if not book.image_url_m.startswith(addr) and is_image_blank(book.image_url_m):
+        if not book.image_url_m.startswith(addr) and is_image_blank(book.image_url_m, self.conf.BackendConfig.api_request_timeout):
             book.image_url_m = generate_image_url(self.conf, "emptyCoverM.png")
             need_update = True
 
-        if not book.image_url_l.startswith(addr) and is_image_blank(book.image_url_l):
+        if not book.image_url_l.startswith(addr) and is_image_blank(book.image_url_l, self.conf.BackendConfig.api_request_timeout):
             book.image_url_l = generate_image_url(self.conf, "emptyCoverL.png")
             need_update = True
 
@@ -106,7 +106,7 @@ class DB:
         if book.id in self.books_genre_checked:
             return
         if book.genre == "" and book.annotation == "":
-            annotation, genre = fetch_annotation_and_genre(book.isbn)
+            annotation, genre = fetch_annotation_and_genre(book.isbn, self.conf.BackendConfig.api_request_timeout)
             if annotation == "":
                 annotation = get_default_annotation()
 

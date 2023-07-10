@@ -36,6 +36,7 @@ class Backend:
         self.with_auth = True
         self.public_addr = "http://127.0.0.1:8080"
         self.ml_addr = "http://127.0.0.1:8090"
+        self.api_request_timeout = 2
 
 
 class Config:
