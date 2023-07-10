@@ -13,7 +13,7 @@ function BookInfo({book}) {
             <img src={book.image_url_l} alt={book.title} className={style.img}/>
             <Rating
                 name="no-value"
-                value={rate}
+                value={book.rating}
                 precision={0.5}
                 onChange={(event, newValue) => {
                     console.log(newValue);

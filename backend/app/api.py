@@ -110,7 +110,7 @@ async def get_rated_books(user_id):
     return BooksExtResponse(items=books, size=len(books))
 
 
-@app_api.get("/books/recommendations/{user_id}", response_model=BooksResponse)
+@app_api.get("/books/recommendations/{user_id}", response_model=BooksExtResponse)
 async def get_recommendations(user_id: int, limit: int = 3):
     """
     Из мл модели

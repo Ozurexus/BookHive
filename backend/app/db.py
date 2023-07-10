@@ -345,7 +345,7 @@ class DB:
             self.cur.fetchall(), user_id, need_ratings=True
         )
 
-    def get_books_by_ids(self, book_ids: list, user_id: int) -> List[Book]:
+    def get_books_by_ids(self, book_ids: list, user_id: int) -> List[BookExt]:
         select_query = """
                     SELECT b.id, isbn, title, author, year_of_publication, publisher, image_url_s, 
                             image_url_m, image_url_l, genre, annotation
@@ -353,7 +353,20 @@ class DB:
                 """
         book_ids = tuple(book_ids)
         self.cur.execute(select_query, (book_ids,))
-        dst = from_books_ext_to_books(self.parse_books_ext_from_db(self.cur.fetchall(), user_id))
+        dst: List[BookExt] = self.parse_books_ext_from_db(self.cur.fetchall(), user_id)
+
+        # avg rating per books
+        ratings_query = """SELECT book_id, avg(rating) as avg_rating
+            FROM ratings
+            WHERE book_id in %s
+            GROUP BY book_id
+        """
+        self.cur.execute(ratings_query, (book_ids,))
+        ratings = {book_id: 0 for book_id in book_ids}
+        ratings.update({int(row[0]): int(row[1]) for row in self.cur.fetchall()})
+
+        for book in dst:
+            book.rating = ratings.get(book.id, 0)
         return dst
 
     def get_user_reviewed_books_num(self, user_id) -> int:
