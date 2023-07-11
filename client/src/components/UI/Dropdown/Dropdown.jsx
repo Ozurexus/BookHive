@@ -9,7 +9,7 @@ import EmptyCover from "../EmptyCover/EmptyCover";
 import LoadingSpinner from "../LoadingSpinner/Spinner";
 import useComponentVisible from "./util";
 
-function Dropdown({booksArr, ...props}) {
+function Dropdown({booksArr, refOutside, isComponentVisible, ...props}) {
     const [modal, setModal] = useState(false);
     const [pickedBook, setPickedBook] = useState({});
     const [pickedRate, setPickedRate] = useState(0);
@@ -18,7 +18,6 @@ function Dropdown({booksArr, ...props}) {
 
 
     // clickoutside
-    const {ref, isComponentVisible} = useComponentVisible(true);
 
 
     useEffect(() => {
@@ -43,60 +42,63 @@ function Dropdown({booksArr, ...props}) {
     return (
         <div className={style.dropdown} {...props}>
             {isComponentVisible &&
-                <div ref={ref} className={style.dropdownContent}>
-                {props.isFetching &&
-                    <div className={style.spinnerDiv}>
-                        <LoadingSpinner size="60px"/>
+                <div ref={refOutside}>
+                    <div className={style.dropdownContent}>
+                        {props.isFetching &&
+                            <div className={style.spinnerDiv}>
+                                <LoadingSpinner size="60px"/>
+                            </div>
+                        }
+                        {!props.isFetching && booksArr.length === 0 && <p>No books found</p>}
+                        {booksArr.map((book) =>
+                            <div key={book.id} className={style.dropdownItem}>
+                                <div className={style.imgContainer}>
+                                    {book.image_url_s !== "http://127.0.0.1:8080/static/emptyCoverS.png"
+                                        ? <img src={book.image_url_s} alt={book.title} className={style.img}/>
+                                        : <EmptyCover name={book.title} size='S'/>
+                                    }
+                                </div>
+                                <div className={style.title}>
+                                    <p className={style.prghTitle}>{book.title}</p>
+                                </div>
+                                <div className={style.author}>
+                                    <p className={style.prghAuthor}>{book.author}</p>
+                                </div>
+                                <div className={style.rateBtn}>
+                                    <MyButton onClick={() => showBook(book)}>Rate</MyButton>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                }
-                {booksArr.map((book) =>
-                    <div key={book.id} className={style.dropdownItem}>
-                        <div className={style.imgContainer}>
-                            {book.image_url_s !== "http://127.0.0.1:8080/static/emptyCoverS.png"
-                                ? <img src={book.image_url_s} alt={book.title} className={style.img}/>
-                                : <EmptyCover name={book.title} size='S'/>
-                            }
-                        </div>
-                        <div className={style.title}>
-                            <p className={style.prghTitle}>{book.title}</p>
-                        </div>
-                        <div className={style.author}>
-                            <p className={style.prghAuthor}>{book.author}</p>
-                        </div>
-                        <div className={style.rateBtn}>
-                            <MyButton onClick={() => showBook(book)}>Rate</MyButton>
-                        </div>
-                    </div>
-                )}
-            </div>
+                    <MyModal visible={modal} setVisible={() => {
+                        setModal(false);
+                        if (pickedRate > 0) {
+                            rateBook(pickedBook.bookId, pickedRate * 2, userId, accessToken)
+                                .then(resp => {
+                                    console.log("rated");
+                                    console.log(resp)
+                                    setNumReviewedBooks(numReviewedBooks + 1);
+                                });
+                            getRatedBooks(userId, accessToken)
+                                .then((obj) => {
+                                    setBooks(obj.items);
+                                })
+                        }
+                    }}>
+                        <img src={pickedBook.image_url_s} alt={'book'}/>
+                        <p>{pickedBook.title}</p>
+                        <p>by {pickedBook.author}</p>
+                        <Rating
+                            name="simple-controlled"
+                            value={pickedRate}
+                            precision={0.5}
+                            onChange={(event, newValue) => {
+                                setPickedRate(newValue);
+                            }}
+                        />
+                    </MyModal>
+                </div>
             }
-            <MyModal visible={modal} setVisible={() => {
-                setModal(false);
-                if (pickedRate > 0) {
-                    rateBook(pickedBook.bookId, pickedRate * 2, userId, accessToken)
-                        .then(resp => {
-                            console.log("rated");
-                            console.log(resp)
-                            setNumReviewedBooks(numReviewedBooks + 1);
-                        });
-                    getRatedBooks(userId, accessToken)
-                        .then((obj) => {
-                            setBooks(obj.items);
-                        })
-                }
-            }}>
-                <img src={pickedBook.image_url_s} alt={'book'}/>
-                <p>{pickedBook.title}</p>
-                <p>by {pickedBook.author}</p>
-                <Rating
-                    name="simple-controlled"
-                    value={pickedRate}
-                    precision={0.5}
-                    onChange={(event, newValue) => {
-                        setPickedRate(newValue);
-                    }}
-                />
-            </MyModal>
         </div>
     );
 }
