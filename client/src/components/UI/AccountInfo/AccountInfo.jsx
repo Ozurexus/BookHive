@@ -49,7 +49,8 @@ function AccountInfo(props) {
                 <button className={style.chPassBtn} onClick={() => setPassVisible(true)}>Change password</button>
                 {passVisible &&
                     <MyModal visible={passVisible} setVisible={() => setPassVisible(false)}>
-                        <PassChangeForm setVisible={() => setPassVisible(false)}/>
+                        <PassChangeForm setVisible={(val) => setPassVisible(val)}/>
+                        <br/>
                     </MyModal>
                 }
             </div>

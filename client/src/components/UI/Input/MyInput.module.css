@@ -4,4 +4,10 @@
     margin: 10px 10px 10px 10px;
     border-radius: 7px;
     border: 7px solid rgb(255,199,31);
+    /*border: 7px solid transparent;*/
+}
+
+::placeholder {
+  color: rgba(11, 0, 35, 0.44);
+  opacity: 1;
 }

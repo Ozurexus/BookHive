@@ -3,7 +3,7 @@ import {config} from "../cfg/config";
 
 const backAddr = config.backend_addr;
 
-export const register = (user) => {
+export const register = async (user) => {
     return fetch(`${backAddr}/auth/users/register`, {
         method: "POST",
         headers: {
