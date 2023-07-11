@@ -1,8 +1,10 @@
 .navbar {
     width: 100%;
+    /*width: 50px;*/
     display: flex;
     align-items: center;
     margin-top: 5px;
+    justify-content: space-between;
 }
 
 .logoimage {
@@ -56,7 +58,18 @@
     align-items: center;
     justify-content: center;
     align-self: stretch;
+}
 
+.link_logout {
+    width: 50px;
+    font-weight: 600;
+    height: 100%;
+    text-decoration: none;
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    align-self: stretch;
 }
 
 .mybooks {
@@ -73,12 +86,11 @@
 }
 
 .logout {
-    flex-grow: 1;
     align-items: center;
     align-self: stretch;
     display: flex;
-    justify-content: center;
-    padding: 10px;
+    justify-content: flex-end;
+    padding: 20px 50px;
     border-radius: 15px;
     margin-right: 20px;
 }

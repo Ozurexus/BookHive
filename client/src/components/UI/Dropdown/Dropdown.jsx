@@ -7,13 +7,19 @@ import {AuthContext, UserContext} from "../../../context";
 import {getRatedBooks, rateBook} from "../../../utils/backendAPI";
 import EmptyCover from "../EmptyCover/EmptyCover";
 import LoadingSpinner from "../LoadingSpinner/Spinner";
+import useComponentVisible from "./util";
 
 function Dropdown({booksArr, ...props}) {
     const [modal, setModal] = useState(false);
     const [pickedBook, setPickedBook] = useState({});
     const [pickedRate, setPickedRate] = useState(0);
-    const {userId, accessToken} = useContext(AuthContext);
+    const {userId, accessToken, numReviewedBooks, setNumReviewedBooks} = useContext(AuthContext);
     const {books, setBooks} = useContext(UserContext);
+
+
+    // clickoutside
+    const {ref, isComponentVisible} = useComponentVisible(true);
+
 
     useEffect(() => {
         const oldBook = books.find((elem, ind, arr) => elem.id === pickedBook.bookId)
@@ -36,7 +42,8 @@ function Dropdown({booksArr, ...props}) {
 
     return (
         <div className={style.dropdown} {...props}>
-            <div className={style.dropdownContent}>
+            {isComponentVisible &&
+                <div ref={ref} className={style.dropdownContent}>
                 {props.isFetching &&
                     <div className={style.spinnerDiv}>
                         <LoadingSpinner size="60px"/>
@@ -62,11 +69,16 @@ function Dropdown({booksArr, ...props}) {
                     </div>
                 )}
             </div>
+            }
             <MyModal visible={modal} setVisible={() => {
                 setModal(false);
                 if (pickedRate > 0) {
                     rateBook(pickedBook.bookId, pickedRate * 2, userId, accessToken)
-                        .then(resp => console.log(resp));
+                        .then(resp => {
+                            console.log("rated");
+                            console.log(resp)
+                            setNumReviewedBooks(numReviewedBooks + 1);
+                        });
                     getRatedBooks(userId, accessToken)
                         .then((obj) => {
                             setBooks(obj.items);
@@ -85,7 +97,6 @@ function Dropdown({booksArr, ...props}) {
                     }}
                 />
             </MyModal>
-
         </div>
     );
 }

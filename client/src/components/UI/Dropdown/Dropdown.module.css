@@ -1,10 +1,12 @@
 .dropdown {
+    z-index: 2;
     width: 90%;
     position: relative;
     display: inline-block;
 }
 
 .dropdownContent {
+    z-index: 2;
     border-radius: 5px;
     display: block;
     position: absolute;
@@ -14,6 +16,7 @@
     padding: 12px 16px;
     max-height: 500px;
     overflow-y: scroll;
+    width: 100%;
 }
 .dropdownItem {
     color: black;
@@ -54,8 +57,13 @@
 }
 
 .spinnerDiv {
-    width: 450px;
+    z-index: 1;
+    width: auto;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
     display: flex;
+    align-content: center;
     align-self: center;
     justify-content: center;
 }

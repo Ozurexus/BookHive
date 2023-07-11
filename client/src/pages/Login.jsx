@@ -8,7 +8,6 @@ import {login} from "../utils/backendAPI";
 const Login = () => {
     const {setIsAuth, setUserId, setAccessToken} = useContext(AuthContext);
     const navigate = useNavigate();
-    console.log('Render login')
 
     const logRef = useRef();
     const passRef = useRef();

@@ -1,4 +1,4 @@
-import React, {useContext} from "react";
+import React, {useContext, useMemo} from "react";
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Welcome from '../pages/Welcome';
@@ -10,7 +10,7 @@ import {AuthContext} from "../context";
 
 
 const AppRouter = () => {
-    const {isAuth, isLoading} = useContext(AuthContext);
+    const {isAuth, numReviewedBooks} = useContext(AuthContext);
 
     const privateRoutes = [
         {path: "/welcome", component: <Welcome/>},
@@ -18,21 +18,30 @@ const AppRouter = () => {
         {path: "/mybooks", component: <MyBooks/>},
         {path: "*", component: <Navigate to='/recommendations'/>},
     ]
+
     const publicRoutes = [
         {path: "/login", component: <Login/>},
         {path: "/register", component: <Register/>},
         {path: "*", component: <Navigate to='/login' replace={true}/>},
     ]
-    if (isLoading)
-        return <Loader/>
+
+    const halfPrivateRoutes = [
+        {path: "/welcome", component: <Welcome/>},
+        {path: "*", component: <Navigate to='/welcome'/>},
+    ]
 
     return (
         isAuth
             ?
             <Routes>
-                {privateRoutes.map(route =>
-                    <Route path={route.path} element={route.component} key={route.path}/>
-                )}
+                {numReviewedBooks >= 3
+                    ? privateRoutes.map(route =>
+                        <Route path={route.path} element={route.component} key={route.path}/>
+                    )
+                    : halfPrivateRoutes.map(route =>{
+                        return <Route path={route.path} element={route.component} key={route.path}/>
+                    })
+                }
             </Routes>
             :
             <Routes>

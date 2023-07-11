@@ -14,7 +14,6 @@ function ContextProvider({children}) {
 
     const [isFetchingRecommendations, setIsFetchingRecommendations] = useState(false);
 
-
     const [books, setBooks] = useState([]);
     const [userLogin, setUserLogin] = useState('');
     const [recBooks, setRecBooks] = useState([]);
@@ -23,7 +22,7 @@ function ContextProvider({children}) {
     const [wishesBooks, setWishesBooks] = useState([])
 
     useEffect(() => {
-        console.log("ContextProvider-UseEffect")
+        console.log("ContextProvider-UseEffect");
         if (localStorage.getItem('auth') === 'true') {
             setIsAuth(true);
             setAccessToken(localStorage.getItem('accessToken'));
@@ -33,6 +32,17 @@ function ContextProvider({children}) {
             setIsFetchingUserInfo(true);
             setIsFetchingRecommendations(true);
             setRecBooks([]);
+            getUserStatus(localStorage.getItem('userId'), localStorage.getItem('accessToken'))
+                .then((obj) => {
+                    console.log("User status:", obj.status);
+                    console.log("Reviewed books:", obj.reviewed_books);
+                    setStatus(obj.status);
+                    setIsFetchingUserInfo(false);
+                    setNumReviewedBooks(obj.reviewed_books)
+                })
+            if (numReviewedBooks === 0) {
+                return;
+            }
             getRatedBooks(localStorage.getItem('userId'), localStorage.getItem('accessToken'))
                 .then(obj => {
                     setBooks(obj.items);
@@ -44,21 +54,13 @@ function ContextProvider({children}) {
                     setRecBooks(obj.items);
                     setIsFetchingRecommendations(false);
                 })
-            getUserStatus(localStorage.getItem('userId'), localStorage.getItem('accessToken'))
-                .then((obj) => {
-                    console.log("User status:", obj.status);
-                    console.log("Reviewed books:", obj.reviewed_books);
-                    setStatus(obj.status);
-                    setIsFetchingUserInfo(false);
-                    setNumReviewedBooks(obj.reviewed_books)
-                })
             getWishesBooks(localStorage.getItem('userId'), localStorage.getItem('accessToken')).then((obj) => {
                 console.log(obj.items);
                 setWishesBooks(obj.items);
             })
         }
         setLoading(false);
-    }, [isAuth]);
+    }, [numReviewedBooks, isAuth]);
 
     return (
         <AuthContext.Provider value={{
@@ -69,7 +71,9 @@ function ContextProvider({children}) {
             accessToken,
             setAccessToken,
             isLoading,
-            setLoading
+            setLoading,
+            numReviewedBooks,
+            setNumReviewedBooks,
         }}>
             <UserContext.Provider value={{
                 isFetchingRecommendations,
@@ -82,7 +86,6 @@ function ContextProvider({children}) {
                 userLogin,
                 setUserLogin,
                 status,
-                numReviewedBooks,
                 setStatus,
                 wishesBooks,
                 setWishesBooks
