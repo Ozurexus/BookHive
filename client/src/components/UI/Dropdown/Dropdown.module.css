@@ -1,0 +1,61 @@
+.dropdown {
+    width: 90%;
+    position: relative;
+    display: inline-block;
+}
+
+.dropdownContent {
+    border-radius: 5px;
+    display: block;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 12px 16px;
+    max-height: 500px;
+    overflow-y: scroll;
+}
+.dropdownItem {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+}
+.imgContainer{
+    height: 75px;
+    width: 60px;
+}
+.title{
+    flex: 2;
+}
+.author{
+    flex: 1;
+}
+.rateBtn{
+    flex: 1;
+}
+.dropdownItem div {
+    align-self: center;
+    justify-content: center;
+    text-align: center;
+}
+.prghTitle, .prghAuthor{
+    font-size: 13px;
+    margin-left: 10px;
+}
+.img{
+    height: 75px;
+    width: 60px;
+}
+.dropdownContent div:hover {
+    background-color: #f1f1f1;
+}
+
+.spinnerDiv {
+    width: 450px;
+    display: flex;
+    align-self: center;
+    justify-content: center;
+}

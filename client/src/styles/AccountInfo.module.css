@@ -1,0 +1,68 @@
+.accountInfo {
+    display: grid;
+    grid-template-rows: 70% 13% 17%;
+    align-items: center;
+    height: 100%;
+    padding-left: 35px;
+    padding-bottom: 40px;
+}
+.chPassBtnDiv{
+    justify-self: center;
+    align-self: center;
+}
+.chPassBtn{
+    padding-top: 50px;
+    padding-right: 20px;
+    background-color: transparent;
+    cursor: pointer;
+    border: none;
+    font-size: 1.2vw;
+    color: rgb(130,130,130);
+}
+.chPassBtn:hover{
+    filter: brightness(0.2);
+}
+.status {
+    padding-right: 20px;
+    padding-top: 40px;
+    font-size: 1.7vw;
+    align-self: center;
+    justify-self: center;
+    margin-bottom: 20px;
+    color: rgb(255, 158, 16);
+}
+
+.accountInfoWithoutStatus {
+    display: grid;
+    grid-template-columns: 30% 70%;
+    align-content: center;
+    align-items: center;
+    height: 100%;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.avatar {
+    display: flex;
+    align-items: center;
+    justify-self: end;
+}
+
+.info {
+    display: grid;
+    align-content: center;
+    justify-self: center;
+}
+
+.name {
+    font-size: 2vw;
+}
+
+.n_reviewed {
+    font-size: 1vw;
+}
+
+.statusSpinner {
+    display: inline-block;
+    margin-left: 10px;
+}

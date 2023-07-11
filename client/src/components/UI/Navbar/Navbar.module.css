@@ -1,0 +1,91 @@
+.navbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.logoimage {
+    height: 50px;
+    margin-top: -7px;
+    /*align-self: center;*/
+    /*justify-self: end;*/
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    height: 50px;
+    flex-grow: 0.05;
+    margin-left: 30px;
+}
+
+.h_logo{
+    font-size: 30px;
+}
+
+.header {
+    flex-grow: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+}
+
+.recommendations {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    border-radius: 15px;
+}
+
+.recommendations:hover, .mybooks:hover, .logout:hover {
+    background-color: #f1f1f1;
+}
+
+.link {
+    font-weight: 600;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+
+}
+
+.mybooks {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    border-radius: 15px;
+}
+
+.booksearch {
+    flex-grow: 3;
+}
+
+.logout {
+    flex-grow: 1;
+    align-items: center;
+    align-self: stretch;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 15px;
+    margin-right: 20px;
+}
+
+.logoutTxt {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+}
+

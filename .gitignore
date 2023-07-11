@@ -1,0 +1,7 @@
+.idea
+venv
+__pycache__
+*.pyc
+*.pyo
+myvenv
+backend/config.json

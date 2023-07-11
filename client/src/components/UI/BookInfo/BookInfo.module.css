@@ -1,0 +1,28 @@
+.container {
+    display: flex;
+    align-items: flex-start;
+    width: 450px;
+    padding: 0 20px;
+}
+.info{
+    width: 450px;
+    height: 520px;
+}
+.p{
+    overflow-y: scroll;
+    height: 250px;
+    margin-top: 5px;
+}
+.p::-webkit-scrollbar {
+    width: 38px;
+}
+
+.p::-webkit-scrollbar-track {
+    background-color: transparent;
+    border-radius: 30px;
+}
+.p::-webkit-scrollbar-thumb {
+    border-radius: 100px;
+    border: 15px solid white;
+    background: rgb(210, 210, 210);
+}
