@@ -13,7 +13,6 @@ const AppRouter = () => {
     const {isAuth, numReviewedBooks} = useContext(AuthContext);
 
     const privateRoutes = [
-        {path: "/welcome", component: <Welcome/>},
         {path: "/recommendations", component: <Recommendations/>},
         {path: "/mybooks", component: <MyBooks/>},
         {path: "*", component: <Navigate to='/recommendations'/>},

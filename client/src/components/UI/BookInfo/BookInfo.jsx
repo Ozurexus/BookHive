@@ -12,9 +12,10 @@ function BookInfo({book}) {
         <div className={style.container}>
             <div className={style.info}>
                 <Rating
-                    name="no-value"
+                    name="read-only"
                     value={book.rating}
                     precision={0.5}
+                    readOnly={true}
                 />
                 <h2 className={style.h2}>{book.title}</h2>
                 <h2 className={style.h2}>{book.author}</h2>

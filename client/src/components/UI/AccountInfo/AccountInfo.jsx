@@ -35,7 +35,7 @@ function AccountInfo(props) {
                 </div>
             </div>
             <div className={style.status}>
-                <p>Status:
+                <p>Status:&nbsp;
                     {isFetchingUserInfo
                         ? <div className={style.statusSpinner}>
                             <LoadingSpinner size="10px"/>
