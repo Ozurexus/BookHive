@@ -13,19 +13,8 @@ function BookInfo({book}) {
             <div className={style.info}>
                 <Rating
                     name="no-value"
-                    value={rate}
+                    value={book.rating}
                     precision={0.5}
-                    onChange={(event, newValue) => {
-                        console.log(newValue);
-                        setRate(newValue);
-                        rateBook(book.id, newValue * 2, userId, accessToken)
-                            .then(resp => console.log(resp));
-                        getRatedBooks(userId, accessToken)
-                            .then((obj) => {
-                                setBooks(obj.items);
-                            })
-                        alert("Book rated");
-                    }}
                 />
                 <h2 className={style.h2}>{book.title}</h2>
                 <h2 className={style.h2}>{book.author}</h2>
