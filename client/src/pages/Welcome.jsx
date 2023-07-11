@@ -16,14 +16,19 @@ const Welcome = () => {
             navigate("/mybooks");
         }
     }, [numReviewedBooks])
+    const inputStyle = {
+        border: '30px solid rgb(250, 192, 41)',
 
+    }
     return (
         <div className='page'>
+            <img className={styleWel.cuteCat} src='/cuteCat.png'/>
+            <img className={styleWel.bookcase} src='/bookcase.png'/>
             <div className={styleWel.searchModal}>
                 <Navbar/>
-                <div className={style.modal}>
+                <div>
                     <h1>Welcome! Please rate at least 3 books</h1>
-                    <BookSearch placeholder={"Enter book titles to rate"}/>
+                    <BookSearch placeholder={"Enter book titles to rate"} inputStyle={inputStyle}/>
                 </div>
             </div>
         </div>

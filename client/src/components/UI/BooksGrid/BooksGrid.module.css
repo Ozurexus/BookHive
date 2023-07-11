@@ -10,9 +10,17 @@
 }
 
 .book {
-    /*border: 4px double aqua;*/
+    display: flex;
+    flex-direction: column;
 }
-
+.rating{
+    align-self: center;
+    justify-self: center;
+}
+.coverImg{
+    align-self: center;
+    justify-self: center;
+}
 .img {
     height: 190px;
     width: 150px;

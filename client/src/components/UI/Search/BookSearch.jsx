@@ -7,7 +7,7 @@ import {getBooks} from "../../../utils/backendAPI";
 import LoadingSpinner from "../LoadingSpinner/Spinner";
 import useComponentVisible from "../Dropdown/util";
 
-function BookSearch({placeholder}) {
+function BookSearch({placeholder, inputStyle}) {
     const [booksArr, setBooksArr] = useState([]);
     const [visible, setVisible] = useState(false);
     const [isFetching, setIsFetching] = useState(false);
@@ -19,13 +19,14 @@ function BookSearch({placeholder}) {
         <div className={style.bookSearch} onClick={() => setVisible(false)}>
             <MyInput
                 placeholder={placeholder}
+                style={inputStyle}
                 ref={bookNameRef}
                 onChange={() => {
                     setIsFetching(true);
                     setBooksArr([]);
                     getBooks(bookNameRef.current.value, accessToken)
                         .then(books => {
-                            if(books.items)
+                            if(books.items !== undefined)
                                 setBooksArr(books.items);
                             setIsFetching(false);
                         })

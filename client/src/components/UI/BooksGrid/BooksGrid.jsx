@@ -3,6 +3,7 @@ import {UserContext} from "../../../context";
 import EmptyCover from "../EmptyCover/EmptyCover";
 import style from "./BooksGrid.module.css"
 import LoadingSpinner from "../LoadingSpinner/Spinner";
+import {Rating} from "@mui/material";
 
 function BooksGrid({books, header}) {
     console.log('BooksGrid render')
@@ -27,10 +28,22 @@ function BooksGrid({books, header}) {
                         <div className={style.grid}>
                             {books.map((book) => (
                                 <div key={book.id} className={style.book}>
-                                    {book.image_url_m !== "http://127.0.0.1:8080/static/emptyCoverM.png"
-                                        ? <img src={book.image_url_m} alt={book.title} className={style.img}/>
-                                        : <EmptyCover name={book.title} size='M'/>
-                                    }
+                                    <div className={style.coverImg}>
+                                        {book.image_url_m !== "http://127.0.0.1:8080/static/emptyCoverM.png"
+                                            ? <img src={book.image_url_m} alt={book.title} className={style.img}/>
+                                            : <EmptyCover name={book.title} size='M'/>
+                                        }
+                                    </div>
+                                    {console.log(book.rating)}
+                                    <div className={style.rating}>
+                                        <Rating
+                                            name="read-only"
+                                            value={book.rating/2}
+                                            precision={0.5}
+                                            readOnly={true}
+                                        />
+                                    </div>
+
                                 </div>
                             ))}
                         </div>
