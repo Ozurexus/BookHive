@@ -395,8 +395,7 @@ class DB:
         return dst
 
     def get_user_reviewed_books_num(self, user_id) -> int:
-        query = """SELECT COUNT(*) FROM ratings WHERE user_id = %s"""
+        query = """SELECT id FROM ratings WHERE user_id = %s"""
         self.cur.execute(query, (user_id,))
-
         dst = self.cur.fetchall()
-        return dst[0][0]
+        return len(dst)

@@ -6,6 +6,7 @@ import {Rating} from '@mui/material';
 import {AuthContext, UserContext} from "../../../context";
 import {getRatedBooks, rateBook} from "../../../utils/backendAPI";
 import EmptyCover from "../EmptyCover/EmptyCover";
+import LoadingSpinner from "../LoadingSpinner/Spinner";
 
 function Dropdown({booksArr, ...props}) {
     const [modal, setModal] = useState(false);
@@ -36,6 +37,11 @@ function Dropdown({booksArr, ...props}) {
     return (
         <div className={style.dropdown} {...props}>
             <div className={style.dropdownContent}>
+                {props.isFetching &&
+                    <div className={style.spinnerDiv}>
+                        <LoadingSpinner size="60px"/>
+                    </div>
+                }
                 {booksArr.map((book) =>
                     <div key={book.id} className={style.dropdownItem}>
                         <div className={style.imgContainer}>
@@ -59,7 +65,7 @@ function Dropdown({booksArr, ...props}) {
             <MyModal visible={modal} setVisible={() => {
                 setModal(false);
                 if (pickedRate > 0) {
-                    rateBook(pickedBook.bookId, pickedRate*2, userId, accessToken)
+                    rateBook(pickedBook.bookId, pickedRate * 2, userId, accessToken)
                         .then(resp => console.log(resp));
                     getRatedBooks(userId, accessToken)
                         .then((obj) => {

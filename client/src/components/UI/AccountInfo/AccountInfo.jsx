@@ -4,12 +4,12 @@ import style from "../../../styles/AccountInfo.module.css";
 import {UserContext} from "../../../context";
 import MyModal from "../MyModal/MyModal";
 import PassChangeForm from "../PassChangeForm/PassChangeForm";
+import LoadingSpinner from "../LoadingSpinner/Spinner";
 
 
 function AccountInfo(props) {
-    const {books, userLogin, status} = useContext(UserContext);
+    const {books, userLogin, status, isFetchingUserInfo} = useContext(UserContext);
     const [passVisible, setPassVisible] = useState(false);
-
 
     console.log("AccountInfo render")
     return (
@@ -23,12 +23,27 @@ function AccountInfo(props) {
                         <p>{userLogin}</p>
                     </div>
                     <div className={style.n_reviewed}>
-                        <p>Books reviewed: {books.length}</p>
+                        <p>Books reviewed:&nbsp;
+                            {isFetchingUserInfo
+                            ? <div className={style.statusSpinner}>
+                                    <LoadingSpinner size="0.5px"/>
+                            </div>
+                                : books.length
+                            }
+                        </p>
                     </div>
                 </div>
             </div>
             <div className={style.status}>
-                <p>Status: {status}</p>
+                <p>Status:
+                    {isFetchingUserInfo
+                        ? <div className={style.statusSpinner}>
+                            <LoadingSpinner size="10px"/>
+                        </div>
+                        : status
+                    }
+                </p>
+
             </div>
             <div className={style.chPassBtnDiv}>
                 <button className={style.chPassBtn} onClick={() => setPassVisible(true)}>Change password</button>

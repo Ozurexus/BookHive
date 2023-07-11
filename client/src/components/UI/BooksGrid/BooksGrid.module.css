@@ -28,12 +28,21 @@
     margin-top: 10px;
     margin-bottom: 40px;
 }
-.noBooksDiv{
+
+.noBooksDiv {
     align-self: center;
     justify-content: center;
     display: flex;
 }
-.noBooksDiv p{
+
+.noBooksDiv p {
     color: rgb(120, 120, 120);
     font-size: 20px;
+}
+
+.loadingSpinner {
+    display: flex;
+    align-self: center;
+    justify-content: center;
+    padding-top: 25%;
 }

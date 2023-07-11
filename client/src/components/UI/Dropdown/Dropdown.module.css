@@ -52,3 +52,10 @@
 .dropdownContent div:hover {
     background-color: #f1f1f1;
 }
+
+.spinnerDiv {
+    width: 450px;
+    display: flex;
+    align-self: center;
+    justify-content: center;
+}

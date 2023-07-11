@@ -5,7 +5,8 @@
     scrollbar-gutter: stable both-edges;
     margin: 30px;
 }
-.book{
+
+.book {
     background-color: transparent;
     flex-direction: column;
     display: flex;
@@ -13,7 +14,7 @@
     justify-content: center;
 }
 
-.wantToReadBtn{
+.wantToReadBtn {
     margin-top: auto;
     margin-bottom: 20px;
     background-color: #BEEDA2;
@@ -23,17 +24,25 @@
     font-weight: bolder;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
-.wantToReadBtn:hover{
+
+.wantToReadBtn:hover {
     filter: brightness(0.87);
 }
 
-.img{
+.img {
     height: 520px;
     width: 380px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
-.bookInfo{
+
+.bookInfo {
     background-color: transparent;
     display: flex;
+}
 
+.loadingSpinner {
+    width: 100%;
+    display: flex;
+    align-self: center;
+    justify-content: center;
 }
