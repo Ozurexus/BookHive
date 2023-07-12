@@ -34,15 +34,16 @@ function BooksGrid({books, header}) {
                                             : <EmptyCover name={book.title} size='M'/>
                                         }
                                     </div>
-                                    {console.log(book.rating)}
-                                    <div className={style.rating}>
-                                        <Rating
-                                            name="read-only"
-                                            value={book.rating/2}
-                                            precision={0.5}
-                                            readOnly={true}
-                                        />
-                                    </div>
+                                    {header === "My reviews" &&
+                                        <div className={style.rating}>
+                                            <Rating
+                                                name="read-only"
+                                                value={book.rating / 2}
+                                                precision={0.5}
+                                                readOnly={true}
+                                            />
+                                        </div>
+                                    }
 
                                 </div>
                             ))}
@@ -50,9 +51,11 @@ function BooksGrid({books, header}) {
                     }
                 </div>
             }
+
         </>
 
-    );
+    )
+        ;
 }
 
 export default BooksGrid;
