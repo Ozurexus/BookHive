@@ -2,7 +2,7 @@ from __future__ import annotations
 import logging
 from time import sleep
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request as FastApiRequest, Header
 from fastapi.responses import JSONResponse, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,7 +15,7 @@ from db import *
 from config import get_config
 from jwt import *
 from util import *
-from typing import List
+from typing import List, Annotated
 
 # ------------------------------------MIDDLEWARE------------------------------------
 WHITE_LIST_URLS = ["/api/docs", "/api/ping", "/api/openapi.json"]
@@ -30,7 +30,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self.some_attribute = some_attribute
 
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(self, request: FastApiRequest, call_next):
         if not config.BackendConfig.with_auth:
             response = await call_next(request)
             return response
@@ -91,9 +91,9 @@ db = DB(config)
 # ------------------------------------ML------------------------------------
 ml_client = MlClient(config.BackendConfig.ml_addr)
 
-
 # ------------------------------------STATIC---------------------------------
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
 
 # ------------------------------------API------------------------------------
 
@@ -231,6 +231,30 @@ async def get_user_status(user_id: int):
     return UserStatusResponse(
         status=calculate_user_status(review_books_num), reviewed_books=review_books_num
     )
+
+
+@app_api.delete("/user/me", response_model=None)
+async def delete_me(Authorization: str = Header(None)):
+    """Юзер id из jwt берет.
+
+    Через swagger запрос не делается - Authorization зарезирвирован сваггером.
+
+    Делай так - curl -X DELETE -H "Authorization: Bearer TOKEN" http://127.0.0.1:8080/api/user/me.
+    """
+    try:
+        user: User = get_user_from_jwt(config, Authorization)
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=401)
+
+    try:
+        db.delete_account(user.id)
+    except Exception as e:
+        db.rollback()
+        logging.error(e)
+        raise HTTPException(status_code=500)
+
+    return Response(status_code=200)
 
 
 # ------------------------------------------------------AUTH------------------------------------------------------------------------

@@ -399,3 +399,8 @@ class DB:
         self.cur.execute(query, (user_id,))
         dst = self.cur.fetchall()
         return len(dst)
+
+    def delete_account(self, user_id):
+        query = """DELETE FROM users WHERE id=%s"""
+        self.cur.execute(query, (user_id,))
+        self.conn.commit()
