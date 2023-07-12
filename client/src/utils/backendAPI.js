@@ -70,7 +70,7 @@ export const rateBook = (bookId, newRate, userId, accessToken) => {
 }
 
 export const getRatedBooks = (userId, accessToken) => {
-    return fetch(`${backAddr}/api/get_rated_books/${userId}`, {
+    return fetch(`${backAddr}/api/user/rated_books/`, {
         method: "GET",
         headers: {
             'accept': 'application/json',
@@ -83,7 +83,7 @@ export const getRatedBooks = (userId, accessToken) => {
 }
 
 export const getRecommendedBooks = (userId, accessToken, limit=5) => {
-    return fetch(`${backAddr}/api/books/recommendations/${userId}?`+new URLSearchParams({limit: limit}), {
+    return fetch(`${backAddr}/api/user/books/recommendation?`+new URLSearchParams({limit: limit}), {
         method: "GET",
         headers: {
             'accept': 'application/json',
@@ -96,7 +96,7 @@ export const getRecommendedBooks = (userId, accessToken, limit=5) => {
 }
 
 export const getUserStatus = (userId, accessToken) => {
-    return fetch(`${backAddr}/api/user/status/${userId}`, {
+    return fetch(`${backAddr}/api/user/status`, {
         method: "GET",
         headers: {
             'accept': 'application/json',
@@ -108,7 +108,7 @@ export const getUserStatus = (userId, accessToken) => {
         .catch(err => console.log(err));
 }
 export const getWishesBooks = (userId, accessToken) => {
-    return fetch(`${backAddr}/api/books/wishes/${userId}`, {
+    return fetch(`${backAddr}/api/user/wish_list`, {
         method: "GET",
         headers: {
             'accept': 'application/json',
