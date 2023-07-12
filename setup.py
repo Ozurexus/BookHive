@@ -4,6 +4,7 @@ import json
 DEFAULT_CONFIG_DIR = "./config"
 DEFAULT_COMPOSE_PATH = f"{DEFAULT_CONFIG_DIR}/docker-compose.tmpl"
 DEFAULT_NGINX_CONF_PATH = f"{DEFAULT_CONFIG_DIR}/nginx.conf.tmpl"
+CLIENT_CONFIG_PATH = "./client/src/cfg/config.json"
 
 
 def setup_compose():
@@ -13,7 +14,7 @@ def setup_compose():
 
     args = parser.parse_args()
 
-    config_path = f"{DEFAULT_CONFIG_DIR}/{args.config}"
+    config_path = f"{DEFAULT_CONFIG_DIR}/{args.config}.json"
     f = open(config_path, "r")
     config_file = f.read()
     config_dict: dict = json.loads(config_file)
@@ -56,6 +57,9 @@ def setup_compose():
 
     with open("config.json", "w") as core_config:
         core_config.write(config_file)
+
+    with open(CLIENT_CONFIG_PATH, "w") as clint_config:
+        clint_config.write(json.dumps(config_dict.get('client')))
 
 
 if __name__ == "__main__":
