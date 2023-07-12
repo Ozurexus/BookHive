@@ -22,8 +22,8 @@ const Welcome = () => {
     }
     return (
         <div className='page'>
-            <img className={styleWel.cuteCat} src='/cuteCat.png'/>
-            <img className={styleWel.bookcase} src='/bookcase.png'/>
+            <img className={styleWel.cuteCat} src='/cuteCat.svg'/>
+            <img className={styleWel.bookcase} src='/bookcase.svg'/>
             <div className={styleWel.searchModal}>
                 <Navbar/>
                 <div>

@@ -10,7 +10,7 @@ import LoadingSpinner from "../LoadingSpinner/Spinner";
 function AccountInfo(props) {
     const {books, userLogin, status, isFetchingUserInfo} = useContext(UserContext);
     const [passVisible, setPassVisible] = useState(false);
-
+    const [deleteAccountVisible, setDeleteAccountVisible] = useState(false);
     console.log("AccountInfo render")
     return (
         <div className={style.accountInfo}>
@@ -50,6 +50,14 @@ function AccountInfo(props) {
                 {passVisible &&
                     <MyModal visible={passVisible} setVisible={() => setPassVisible(false)}>
                         <PassChangeForm setVisible={(val) => setPassVisible(val)}/>
+                        <br/>
+                    </MyModal>
+                }
+                <button className={style.deleteAccountBtn} onClick={() => {setDeleteAccountVisible(true)}}>Delete account</button>
+                {deleteAccountVisible &&
+                    <MyModal visible={passVisible} setVisible={() => setPassVisible(false)}>
+                        <p>Delete Account?</p>
+                        {/*<PassChangeForm setVisible={(val) => setPassVisible(val)}/>*/}
                         <br/>
                     </MyModal>
                 }
