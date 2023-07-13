@@ -3,14 +3,15 @@ import Navbar from "../components/UI/Navbar/Navbar";
 import {AuthContext, UserContext} from "../context";
 import style from "../styles/Recommendations.module.css"
 import EmptyCover from "../components/UI/EmptyCover/EmptyCover";
-import {addWishBook} from "../utils/backendAPI";
+import {addWishBook, AuthorizationError} from "../utils/backendAPI";
 import BookInfo from "../components/UI/BookInfo/BookInfo";
 import Loader from "../components/UI/Loader/Loader";
 import LoadingSpinner from "../components/UI/LoadingSpinner/Spinner";
+import {Logout} from "../context/util";
 
 const Recommendations = () => {
     const {recBooks, wishesBooks, setWishesBooks, isFetchingRecommendations} = useContext(UserContext);
-    const {userId, accessToken} = useContext(AuthContext);
+    const {userId, accessToken, setIsAuth, setAccessToken, setUserId, setNumReviewedBooks} = useContext(AuthContext);
 
     const getWishListText = (book) => {
         if (wishesBooks.includes(book)) {
@@ -39,6 +40,11 @@ const Recommendations = () => {
                                 }
                                 addWishBook(book.id, userId, accessToken).then(r => {
                                     console.log("Add book:", book.id, "to wishlist of user", userId)
+                                }).catch((err) => {
+                                    if (err instanceof AuthorizationError) {
+                                        Logout(setIsAuth, setAccessToken, setUserId, setNumReviewedBooks);
+                                        console.log(err);
+                                    }
                                 })
                             }}>{getWishListText(book)}
                             </button>

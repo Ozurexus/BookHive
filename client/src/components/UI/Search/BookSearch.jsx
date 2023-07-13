@@ -3,15 +3,16 @@ import MyInput from "../Input/MyInput";
 import Dropdown from "../Dropdown/Dropdown";
 import {AuthContext} from "../../../context";
 import style from './BookSearch.module.css'
-import {getBooks} from "../../../utils/backendAPI";
+import {getBooks, AuthorizationError} from "../../../utils/backendAPI";
 import LoadingSpinner from "../LoadingSpinner/Spinner";
 import useComponentVisible from "../Dropdown/util";
+import {Logout} from "../../../context/util";
 
 function BookSearch({placeholder, inputStyle}) {
     const [booksArr, setBooksArr] = useState([]);
     const [visible, setVisible] = useState(false);
     const [isFetching, setIsFetching] = useState(false);
-    const {accessToken} = useContext(AuthContext);
+    const {accessToken, setIsAuth, setAccessToken, setUserId, setNumReviewedBooks} = useContext(AuthContext);
     const bookNameRef = useRef();
     const {ref, isComponentVisible, setIsComponentVisible} = useComponentVisible(true);
 
@@ -26,9 +27,15 @@ function BookSearch({placeholder, inputStyle}) {
                     setBooksArr([]);
                     getBooks(bookNameRef.current.value, accessToken)
                         .then(books => {
-                            if(books.items !== undefined)
+                            if (books.items !== undefined)
                                 setBooksArr(books.items);
                             setIsFetching(false);
+                        })
+                        .catch((err) => {
+                            if (err instanceof AuthorizationError) {
+                                Logout(setIsAuth, setAccessToken, setUserId, setNumReviewedBooks);
+                                console.log(err);
+                            }
                         })
                 }}
                 onClick={(e) => {

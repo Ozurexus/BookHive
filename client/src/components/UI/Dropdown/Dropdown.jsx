@@ -4,16 +4,25 @@ import MyButton from "../Button/MyButton";
 import MyModal from "../MyModal/MyModal";
 import {Rating} from '@mui/material';
 import {AuthContext, UserContext} from "../../../context";
-import {getRatedBooks, rateBook} from "../../../utils/backendAPI";
+import {AuthorizationError, getRatedBooks, rateBook} from "../../../utils/backendAPI";
 import EmptyCover from "../EmptyCover/EmptyCover";
 import LoadingSpinner from "../LoadingSpinner/Spinner";
 import useComponentVisible from "./util";
+import {Logout} from "../../../context/util";
 
 function Dropdown({booksArr, refOutside, isComponentVisible, ...props}) {
     const [modal, setModal] = useState(false);
     const [pickedBook, setPickedBook] = useState({});
     const [pickedRate, setPickedRate] = useState(0);
-    const {userId, accessToken, numReviewedBooks, setNumReviewedBooks} = useContext(AuthContext);
+    const {
+        userId,
+        accessToken,
+        numReviewedBooks,
+        setNumReviewedBooks,
+        setIsAuth,
+        setAccessToken,
+        setUserId
+    } = useContext(AuthContext);
     const {books, setBooks} = useContext(UserContext);
 
 
@@ -78,11 +87,21 @@ function Dropdown({booksArr, refOutside, isComponentVisible, ...props}) {
                                     console.log("rated");
                                     console.log(resp)
                                     setNumReviewedBooks(numReviewedBooks + 1);
-                                });
+                                }).catch((err) => {
+                                if (err instanceof AuthorizationError) {
+                                    Logout(setIsAuth, setAccessToken, setUserId, setNumReviewedBooks);
+                                    console.log(err);
+                                }
+                            })
                             getRatedBooks(userId, accessToken)
                                 .then((obj) => {
                                     setBooks(obj.items);
-                                })
+                                }).catch((err) => {
+                                if (err instanceof AuthorizationError) {
+                                    Logout(setIsAuth, setAccessToken, setUserId, setNumReviewedBooks);
+                                    console.log(err);
+                                }
+                            })
                         }
                     }}>
                         <img src={pickedBook.image_url_s} alt={'book'}/>
