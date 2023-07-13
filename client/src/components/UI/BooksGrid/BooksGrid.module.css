@@ -12,6 +12,7 @@
 .book {
     display: flex;
     flex-direction: column;
+    align-items: center;
 }
 .rating{
     align-self: center;
@@ -47,7 +48,21 @@
     color: rgb(120, 120, 120);
     font-size: 20px;
 }
+.wantToReadBtn {
+    margin-top: auto;
+    margin-bottom: 20px;
+    background-color: #BEEDA2;
+    border-radius: 10px;
+    padding: 9px 21px;
+    width: 150px;
+    border: none;
+    font-weight: bolder;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
 
+.wantToReadBtn:hover {
+    filter: brightness(0.87);
+}
 .loadingSpinner {
     display: flex;
     align-self: center;

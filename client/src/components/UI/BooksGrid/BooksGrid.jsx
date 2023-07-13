@@ -1,15 +1,23 @@
 import React, {useContext, useMemo} from 'react';
-import {UserContext} from "../../../context";
+import {AuthContext, UserContext} from "../../../context";
 import EmptyCover from "../EmptyCover/EmptyCover";
 import style from "./BooksGrid.module.css"
 import LoadingSpinner from "../LoadingSpinner/Spinner";
 import {Rating} from "@mui/material";
+import {addWishBook} from "../../../utils/backendAPI";
 
 function BooksGrid({books, header}) {
     console.log('BooksGrid render')
     console.log(`Books number:${books.length}`)
     console.log(books);
-    const {isFetchingRatedBooks} = useContext(UserContext);
+    const {isFetchingRatedBooks, wishesBooks, setWishesBooks} = useContext(UserContext);
+    const {userId, accessToken} = useContext(AuthContext);
+    const getWishListText = (book) => {
+        if (wishesBooks.includes(book)) {
+            return "Remove";
+        }
+        return "Add to wishlist";
+    };
     return (
         <>
             <div className={style.div_p}>
@@ -44,6 +52,18 @@ function BooksGrid({books, header}) {
                                             />
                                         </div>
                                     }
+                                    {header === "Wishlist" &&
+                                        <button className={style.wantToReadBtn} onClick={() => {
+                                            if (wishesBooks.includes(book)) {
+                                                setWishesBooks(wishesBooks.filter(wishBook => wishBook !== book));
+                                            } else {
+                                                setWishesBooks([...wishesBooks, book]);
+                                            }
+                                            addWishBook(book.id, userId, accessToken).then(r => {
+                                                console.log("Add book:", book.id, "to wishlist of user", userId)
+                                            })
+                                        }}>{getWishListText(book)}
+                                        </button>}
 
                                 </div>
                             ))}

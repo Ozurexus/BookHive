@@ -17,7 +17,7 @@ const Login = () => {
     const [inputStyle, setInputStyle] = useState({});
 
 
-    const userNotFoundStyle = {background:"rgba(248,24,84,0.49)"}
+    const userNotFoundStyle = {background:"rgba(238,34,94,0.49)"}
 
     return (
         <div className={styles.modal}>
