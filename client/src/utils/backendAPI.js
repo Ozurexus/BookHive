@@ -184,3 +184,17 @@ export const unRateBook = (bookId, userId, accessToken) => {
         }
     })
 }
+export const deleteAccount = async (accessToken) => {
+    return fetch(`${backAddr}/api/user/me`, {
+        method: "DELETE",
+        headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        },
+    }).then(resp => {
+            if (resp.status === 401) {
+                throw new AuthorizationError("jwt died");
+            }
+        })
+}
