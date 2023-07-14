@@ -277,7 +277,7 @@ class DB:
             return
 
         # if no just insert
-        query = """DELETE FROM ratings WHERE user_id=%s, book_id=%s"""
+        query = """DELETE FROM ratings WHERE user_id=%s AND book_id=%s"""
         try:
             self.cur.execute(query, (rate_req.user_id, rate_req.book_id))
             self.conn.commit()
