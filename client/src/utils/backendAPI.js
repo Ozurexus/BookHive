@@ -167,7 +167,7 @@ export const addWishBook = (bookId, userId, accessToken) => {
     })
 }
 export const unRateBook = (bookId, userId, accessToken) => {
-    return fetch(`${backAddr}/api/books/unrate/`, {
+    return fetch(`${backAddr}/api/books/unrate`, {
         method: "POST",
         headers: {
             'accept': 'application/json',
