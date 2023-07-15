@@ -67,7 +67,7 @@ function ContextProvider({children}) {
             })
             getRecommendedBooks(localStorage.getItem('userId'), localStorage.getItem('accessToken'), 10)
                 .then((obj) => {
-                    console.log(obj.items);
+                    console.log("Rec books:", obj.items);
                     setRecBooks(obj.items);
                     setIsFetchingRecommendations(false);
                 }).catch((err) => {
@@ -77,7 +77,7 @@ function ContextProvider({children}) {
                 }
             })
             getWishesBooks(localStorage.getItem('userId'), localStorage.getItem('accessToken')).then((obj) => {
-                console.log(obj.items);
+                console.log("Wishes books: ", obj.items);
                 setWishesBooks(obj.items);
             }).catch((err) => {
                 if (err instanceof AuthorizationError) {

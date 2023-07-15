@@ -1,6 +1,5 @@
 import React, {useContext, useEffect} from "react";
 import Navbar from "../components/UI/Navbar/Navbar";
-import style from '../styles/Login.module.css'
 import styleWel from '../styles/Welcome.module.css'
 import BookSearch from "../components/UI/Search/BookSearch";
 import {useNavigate} from "react-router-dom";

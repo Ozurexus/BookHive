@@ -1,4 +1,4 @@
-import React, {useContext, useMemo} from 'react';
+import React, {useContext} from 'react';
 import {AuthContext, UserContext} from "../../../context";
 import EmptyCover from "../EmptyCover/EmptyCover";
 import style from "./BooksGrid.module.css"
@@ -9,7 +9,7 @@ import {addWishBook} from "../../../utils/backendAPI";
 function BooksGrid({books, header}) {
     console.log('BooksGrid render')
     console.log(`Books number:${books.length}`)
-    console.log(books);
+    console.log("Grid books: ", books);
     const {isFetchingRatedBooks, wishesBooks, setWishesBooks} = useContext(UserContext);
     const {userId, accessToken} = useContext(AuthContext);
     const getWishListText = (book) => {

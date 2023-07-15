@@ -15,10 +15,23 @@
     background: white;
     border-radius: 16px;
     min-width: 250px;
+
 }
 
 .myModal.active {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.closeBtn {
+    position: relative;
+    padding: 5px;
+    cursor: pointer;
+    float: right;
+    left: 20px;
+    bottom: 20px;
+    background: none;
+    border: none;
+    font-size: 20px;
 }

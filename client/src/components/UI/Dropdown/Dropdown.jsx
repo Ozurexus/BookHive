@@ -14,6 +14,8 @@ function Dropdown({booksArr, refOutside, isComponentVisible, fetches, ...props})
     const [modal, setModal] = useState(false);
     const [pickedBook, setPickedBook] = useState({});
     const [pickedRate, setPickedRate] = useState(-1);
+    const {recBooks} = useContext(UserContext);
+
     const {
         userId,
         accessToken,
@@ -31,9 +33,9 @@ function Dropdown({booksArr, refOutside, isComponentVisible, fetches, ...props})
 
     useEffect(() => {
         const oldBook = books.find((elem, ind, arr) => elem.id === pickedBook.id)
-        console.log(oldBook)
+        //console.log(oldBook)
         if (oldBook)
-            setPickedRate(oldBook.rating/2)
+            setPickedRate(oldBook.rating / 2)
         else
             setPickedRate(0);
     }, [pickedBook])
@@ -98,11 +100,11 @@ function Dropdown({booksArr, refOutside, isComponentVisible, fetches, ...props})
                                     console.log(err);
                                 }
                             })
-                        } else if(pickedRate === 0) {
+                        } else if (pickedRate === 0) {
                             unRateBook(pickedBook.id, userId, accessToken)
                                 .then((obj) => {
-                                    setBooks(obj.items);
                                     console.log("unrated");
+                                    setNumReviewedBooks(numReviewedBooks - 1);
                                 })
                                 .catch((err) => {
                                     if (err instanceof AuthorizationError) {
@@ -110,9 +112,23 @@ function Dropdown({booksArr, refOutside, isComponentVisible, fetches, ...props})
                                         console.log(err);
                                     }
                                 })
+                            getRatedBooks(userId, accessToken)
+                                .then((obj) => {
+                                    setBooks(obj.items);
+                                }).catch((err) => {
+                                if (err instanceof AuthorizationError) {
+                                    Logout(setIsAuth, setAccessToken, setUserId, setNumReviewedBooks);
+                                    console.log(err);
+                                }
+                            })
                         }
                     }}>
-                        <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}>
                             <BookInfo book={pickedBook}/>
                             <h3>Rate this book: </h3>
                             <Rating
@@ -124,7 +140,7 @@ function Dropdown({booksArr, refOutside, isComponentVisible, fetches, ...props})
                                     setPickedRate(newValue);
                                 }}
                             />
-                            <MyButton onClick = {() => {
+                            <MyButton onClick={() => {
                                 setPickedRate(0);
                             }}>Unrate</MyButton>
                         </div>

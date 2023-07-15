@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import style from "./BookInfo.module.css";
 import styleRec from '../../../styles/Recommendations.module.css'
 import {Rating} from "@mui/material";
@@ -7,15 +7,14 @@ import {addWishBook, AuthorizationError} from "../../../utils/backendAPI";
 import {Logout} from "../../../context/util";
 
 function BookInfo({book}) {
+    console.log('Book info: ', book)
     const {wishesBooks, setWishesBooks} = useContext(UserContext);
     const {userId, accessToken, setIsAuth, setAccessToken, setUserId, setNumReviewedBooks} = useContext(AuthContext);
 
     const getWishListText = (book) => {
-        if (wishesBooks.includes(book)) {
-            return "Remove from wishlist";
-        }
-        return "Add to wishlist";
+        return wishesBooks.some(element => book.id === element.id) ? "Remove from wishlist" : "Add to wishlist";
     };
+
 
     return (
         <div className={styleRec.bookInfo}>
@@ -38,7 +37,6 @@ function BookInfo({book}) {
                 }}>{getWishListText(book)}
                 </button>
             </div>
-
 
 
             <div className={style.container}>

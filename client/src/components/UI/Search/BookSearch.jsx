@@ -26,6 +26,7 @@ function BookSearch({placeholder, inputStyle}) {
                     setBooksArr([]);
                     getBooks(bookNameRef.current.value, accessToken)
                         .then(books => {
+                            //console.log(books);
                             if (books.items !== undefined)
                                 setBooksArr(books.items);
                             setFetches(false);
