@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useMemo} from 'react';
 import style from "./BookInfo.module.css";
 import styleRec from '../../../styles/Recommendations.module.css'
 import {Rating} from "@mui/material";
@@ -48,9 +48,10 @@ function BookInfo({book}) {
                     <br/>
                     <div className={style.ratingAndP}>
                         <h3>Average rating: &nbsp;</h3>
+
                         <Rating
-                            name="read-only"
-                            value={book['rating']}
+                            name="read-only-bla"
+                            value={book.rating}
                             precision={0.5}
                             readOnly={true}
                         />

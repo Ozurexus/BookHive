@@ -12,8 +12,9 @@ import BookInfo from "../BookInfo/BookInfo";
 
 function Dropdown({booksArr, refOutside, isComponentVisible, fetches, ...props}) {
     const [modal, setModal] = useState(false);
-    const [pickedBook, setPickedBook] = useState({});
+    const [pickedBook, setPickedBook] = useState({rating: 0});
     const [pickedRate, setPickedRate] = useState(-1);
+    const [prevPickedRate, setPrevPickedRate] = useState(-1);
     const {recBooks} = useContext(UserContext);
 
     const {
@@ -34,10 +35,14 @@ function Dropdown({booksArr, refOutside, isComponentVisible, fetches, ...props})
     useEffect(() => {
         const oldBook = books.find((elem, ind, arr) => elem.id === pickedBook.id)
         //console.log(oldBook)
-        if (oldBook)
-            setPickedRate(oldBook.rating / 2)
-        else
-            setPickedRate(0);
+        if (oldBook){
+            setPickedRate(oldBook.rating / 2);
+            setPrevPickedRate(oldBook.rating / 2);
+        }
+        else{
+            setPickedRate(-1);
+            setPrevPickedRate(-1);
+        }
     }, [pickedBook])
 
 
@@ -78,8 +83,9 @@ function Dropdown({booksArr, refOutside, isComponentVisible, fetches, ...props})
                         )}
                     </div>
                     <MyModal visible={modal} setVisible={() => {
+                        console.log('pickedBook:', pickedRate);
                         setModal(false);
-                        if (pickedRate > 0) {
+                        if (pickedRate !== 0 && pickedRate !== prevPickedRate) {
                             rateBook(pickedBook.id, pickedRate * 2, userId, accessToken)
                                 .then(resp => {
                                     console.log("rated");
