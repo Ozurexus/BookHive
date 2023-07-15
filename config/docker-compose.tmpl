@@ -11,7 +11,7 @@ services:
     volumes:
       - bookhive-data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d bookhive" ]
+      test: [ "CMD-SHELL", "pg_isready -U {{ postgres_user }} -d {{ postgres_database }}" ]
       interval: 10s
       timeout: 5s
       retries: 5

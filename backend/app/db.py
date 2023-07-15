@@ -184,8 +184,19 @@ class DB:
         return self.parse_books_ext_from_db(self.cur.fetchall(), user_id)
 
     def find_books_by_title_pattern(self, pattern: str, limit: int = 0, by_author: bool = False) -> List[BooksByPatternItem]:
-        query = """SELECT id, title, author, image_url_s, image_url_m, image_url_l, genre, annotation, isbn
-        FROM books WHERE LOWER(title) LIKE (%s)
+        query = """SELECT b.id,
+                   b.title,
+                   b.author,
+                   b.image_url_s,
+                   b.image_url_m,
+                   b.image_url_l,
+                   b.genre,
+                   b.annotation,
+                   b.isbn,
+                   avg(r.rating)
+            FROM books b JOIN ratings r on b.id = r.book_id
+            WHERE LOWER(title) LIKE (%s)
+            GROUP BY b.id
         """
         if by_author:
             query = query.replace("LOWER(title)", "LOWER(author)")
@@ -211,7 +222,8 @@ class DB:
                     image_url_l=item[5],
                     genre=item[6],
                     annotation=item[7],
-                    isbn=item[8]
+                    isbn=item[8],
+                    rating=int(item[9]),
                 )
             )
 

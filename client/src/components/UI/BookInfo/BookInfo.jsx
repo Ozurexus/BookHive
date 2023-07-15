@@ -50,7 +50,7 @@ function BookInfo({book}) {
                         <h3>Average rating: &nbsp;</h3>
                         <Rating
                             name="read-only"
-                            value={book.rating}
+                            value={book['rating']}
                             precision={0.5}
                             readOnly={true}
                         />

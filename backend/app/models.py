@@ -44,6 +44,7 @@ class BooksByPatternItem(BaseModel):
     image_url_s: str
     image_url_m: str
     image_url_l: str
+    rating: int
 
 
 class BooksByPatternResponse(BaseModel):
