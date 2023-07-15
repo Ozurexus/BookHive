@@ -1,0 +1,1 @@
+make down && make up-prod
