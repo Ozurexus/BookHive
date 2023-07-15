@@ -8,7 +8,7 @@
   },
   "backend": {
     "host": "0.0.0.0",
-    "port": "8080",
+    "port": "8095",
     "log_level": "info",
     "jwt_key": "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7",
     "algorithm": "HS256",
@@ -23,11 +23,11 @@
     "port": "8090",
     "log_level": "info",
     "ml_retrain_counter": 20,
-    "backend_addr": "http://backend:8080",
+    "backend_addr": "http://backend:8095",
     "public_addr": "http://127.0.0.1:8090"
   },
   "client": {
-    "backend_addr": "http://127.0.0.1:8080"
+    "backend_addr": "http://127.0.0.1:8095"
   },
   "nginx": {
     "listen_port": 80,
