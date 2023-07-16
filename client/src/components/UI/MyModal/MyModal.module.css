@@ -35,3 +35,6 @@
     border: none;
     font-size: 20px;
 }
+.closeBtn:hover{
+    filter: brightness(0.9);
+}
