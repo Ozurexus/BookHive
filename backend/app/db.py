@@ -396,9 +396,10 @@ class DB:
                 WHERE fb.user_id = %s"""
 
         self.cur.execute(query, (user_id,))
-        return self.parse_books_ext_from_db(
+        books = self.parse_books_ext_from_db(
             self.cur.fetchall(), user_id, need_ratings=True
         )
+        return self.map_avg_rating_books(books)
 
     def get_books_by_ids(self, book_ids: list, user_id: int) -> List[BookExt]:
         select_query = """
