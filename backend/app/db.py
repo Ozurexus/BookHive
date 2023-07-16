@@ -65,6 +65,22 @@ class DB:
     def rollback(self):
         self.conn.rollback()
 
+    def map_avg_rating_books(self, books: List[BookExt]) -> List[BookExt]:
+        query = """SELECT b.id, AVG(r.rating)
+                FROM books b 
+                    JOIN ratings r ON b.id = r.book_id
+                WHERE b.id IN %s
+                GROUP BY b.id
+                """
+        required_ids = tuple([int(book.id) for book in books])
+        self.cur.execute(query, (required_ids,))
+        dst = self.cur.fetchall()
+
+        books_rating_map = {int(book_id): int(avg_rating) for book_id, avg_rating in dst}
+        for book in books:
+            book.avg_rating = books_rating_map.get(book.id, 0)
+        return books
+
     def map_ratings_book(self, books: List[BookExt], user_id: int) -> List[BookExt]:
         query = """SELECT rating, book_id FROM ratings WHERE user_id=%s"""
         self.cur.execute(query, (user_id,))
@@ -79,7 +95,7 @@ class DB:
         return books
 
     def update_images(self, book: BookExt):
-        logging.info(f'updating image urls... {book.id}')
+        logging.debug(f'updating image urls... {book.id}')
         query = "UPDATE books SET image_url_s=%s, image_url_m=%s, image_url_l=%s WHERE id=%s"
         self.cur.execute(query, (book.image_url_s, book.image_url_m, book.image_url_l, book.id))
         self.conn.commit()
@@ -115,7 +131,7 @@ class DB:
         """ genre, image, etc..."""
         self.handle_genre_annotation(book_obj)
         if book_obj.image_url_l != "":
-            logging.info(f"not empty image book_id:{book_obj.id}, link={book_obj.image_url_l} - OK")
+            logging.debug(f"not empty image book_id:{book_obj.id}, link={book_obj.image_url_l} - OK")
         self.handle_images(book_obj)
         self.books_checked.add(book_obj.id)
 
@@ -181,9 +197,11 @@ class DB:
             WHERE r.user_id = %s
         """
         self.cur.execute(select_query, (user_id,))
-        return self.parse_books_ext_from_db(self.cur.fetchall(), user_id)
+        books = self.map_avg_rating_books(self.parse_books_ext_from_db(self.cur.fetchall(), user_id))
+        return books
 
-    def find_books_by_title_pattern(self, pattern: str, limit: int = 0, by_author: bool = False) -> List[BooksByPatternItem]:
+    def find_books_by_title_pattern(self, pattern: str, limit: int = 0, by_author: bool = False) -> List[
+        BooksByPatternItem]:
         query = """SELECT b.id,
                    b.title,
                    b.author,
@@ -279,7 +297,7 @@ class DB:
                                   annotation=book[10])
             self.handle_book(book_obj)
 
-            logging.info("handled genre,annotation,images")
+            logging.debug("handled genre,annotation,images")
 
     def un_rate_book(self, rate_req: UnRateReq):
         # checking whether already exists

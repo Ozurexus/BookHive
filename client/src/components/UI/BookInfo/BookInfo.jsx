@@ -51,7 +51,7 @@ function BookInfo({book}) {
 
                         <Rating
                             name="read-only-bla"
-                            value={book.rating}
+                            value={book.avg_rating || book.rating}
                             precision={0.5}
                             readOnly={true}
                         />
