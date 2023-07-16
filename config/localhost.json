@@ -1,4 +1,8 @@
 {
+  "dozzle": {
+    "username": "admin",
+    "password": "admin"
+  },
   "postgres": {
     "database": "bookhive",
     "user": "postgres",
