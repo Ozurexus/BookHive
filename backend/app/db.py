@@ -66,6 +66,8 @@ class DB:
         self.conn.rollback()
 
     def map_avg_rating_books(self, books: List[BookExt]) -> List[BookExt]:
+        if len(books) == 0:
+            return []
         query = """SELECT b.id, AVG(r.rating)
                 FROM books b 
                     JOIN ratings r ON b.id = r.book_id
