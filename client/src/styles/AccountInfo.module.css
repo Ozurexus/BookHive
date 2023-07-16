@@ -1,29 +1,40 @@
 .accountInfo {
     display: grid;
-    grid-template-rows: 70% 13% 17%;
+    grid-template-rows: 50% 25% 25%;
     align-items: center;
     height: 100%;
-    padding-left: 35px;
     padding-bottom: 40px;
 }
 .chPassBtnDiv{
     justify-self: center;
-    align-self: center;
+    display: flex;
+    flex-direction: column;
+
 }
 .chPassBtn{
-    padding-top: 50px;
-    padding-right: 20px;
-    background-color: transparent;
+    background: transparent;
     cursor: pointer;
     border: none;
     font-size: 1.2vw;
     color: rgb(130,130,130);
+    margin-top: 30px;
+}
+.deleteAccountBtn{
+    background: transparent;
+    cursor: pointer;
+    border: none;
+    font-size: 1.2vw;
+    margin-top: 50px;
+    color: rgb(241, 47, 47);
+    justify-self: flex-end;
 }
 .chPassBtn:hover{
-    filter: brightness(0.2);
+    filter: brightness(0.8);
+}
+.deleteAccountBtn:hover{
+    filter: brightness(0.8);
 }
 .status {
-    padding-right: 20px;
     padding-top: 40px;
     font-size: 1.7vw;
     align-self: center;

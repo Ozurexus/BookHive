@@ -1,16 +1,19 @@
 import React, {useContext, useMemo, useState} from 'react';
 import {Avatar} from "@mui/material";
 import style from "../../../styles/AccountInfo.module.css";
-import {UserContext} from "../../../context";
+import {AuthContext, UserContext} from "../../../context";
 import MyModal from "../MyModal/MyModal";
 import PassChangeForm from "../PassChangeForm/PassChangeForm";
 import LoadingSpinner from "../LoadingSpinner/Spinner";
+import {deleteAccount} from "../../../utils/backendAPI";
+import MyButton from "../Button/MyButton";
 
 
 function AccountInfo(props) {
     const {books, userLogin, status, isFetchingUserInfo} = useContext(UserContext);
+    const {setIsAuth, setAccessToken, setUserId, setNumReviewedBooks, accessToken} = useContext(AuthContext);
     const [passVisible, setPassVisible] = useState(false);
-
+    const [deleteAccountVisible, setDeleteAccountVisible] = useState(false);
     console.log("AccountInfo render")
     return (
         <div className={style.accountInfo}>
@@ -25,9 +28,9 @@ function AccountInfo(props) {
                     <div className={style.n_reviewed}>
                         <p>Books reviewed:&nbsp;
                             {isFetchingUserInfo
-                            ? <div className={style.statusSpinner}>
+                                ? <div className={style.statusSpinner}>
                                     <LoadingSpinner size="0.5px"/>
-                            </div>
+                                </div>
                                 : books.length
                             }
                         </p>
@@ -35,7 +38,7 @@ function AccountInfo(props) {
                 </div>
             </div>
             <div className={style.status}>
-                <p>Status:
+                <p>Status:&nbsp;
                     {isFetchingUserInfo
                         ? <div className={style.statusSpinner}>
                             <LoadingSpinner size="10px"/>
@@ -49,7 +52,35 @@ function AccountInfo(props) {
                 <button className={style.chPassBtn} onClick={() => setPassVisible(true)}>Change password</button>
                 {passVisible &&
                     <MyModal visible={passVisible} setVisible={() => setPassVisible(false)}>
-                        <PassChangeForm setVisible={() => setPassVisible(false)}/>
+                        <PassChangeForm setVisible={(val) => setPassVisible(val)}/>
+                        <br/>
+                    </MyModal>
+                }
+                <button className={style.deleteAccountBtn} onClick={() => {
+                    setDeleteAccountVisible(true);
+                }}>Delete account
+                </button>
+                {deleteAccountVisible &&
+                    <MyModal needCloseBtn={false} visible={deleteAccountVisible}
+                             setVisible={() => setDeleteAccountVisible(false)}>
+                        <p>Are you sure that you want to delete account?</p>
+                        <div style={{display:"flex", justifyContent:"space-between", padding:"20px"}}>
+                            <MyButton onClick={() => {
+                                deleteAccount(accessToken).then(r => {
+                                    setIsAuth(false);
+                                    setAccessToken('');
+                                    setUserId('');
+                                    setNumReviewedBooks(0);
+                                    localStorage.removeItem('auth');
+                                    localStorage.removeItem('userId');
+                                    localStorage.removeItem('accessToken');
+                                    localStorage.removeItem('userLogin');
+                                })
+                            }}>OK
+                            </MyButton>
+                            <MyButton onClick={() => setDeleteAccountVisible(false)}>Cancel</MyButton>
+                        </div>
+
                     </MyModal>
                 }
             </div>

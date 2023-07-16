@@ -1,6 +1,26 @@
 .searchModal {
     display: flex;
     flex-direction: column;
+    justify-items: center;
     align-items: center;
-    min-height: 500px;
+    height: 100%;
+    width: 100%;
+    border: 100px;
+}
+.cuteCat{
+    height: 450px;
+    width: 550px;
+    z-index: -1;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+
+}
+.bookcase{
+    height: 650px;
+    width: 450px;
+    z-index: -1;
+    position: absolute;
+    left: 50px;
+    bottom: 20px;
 }

@@ -3,7 +3,16 @@ import {config} from "../cfg/config";
 
 const backAddr = config.backend_addr;
 
-export const register = (user) => {
+export class AuthorizationError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "AuthorizationError";
+    this.statusCode = 401;
+  }
+}
+
+// -----------------------------------AUTH-----------------------------------
+export const register = async (user) => {
     return fetch(`${backAddr}/auth/users/register`, {
         method: "POST",
         headers: {
@@ -23,8 +32,7 @@ export const changePassword = (passForm) => {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(passForm)
-    })
-        .catch(err => console.log(err));
+    }).catch(err => console.log(err));
 }
 export const login = (user) => {
     return fetch(`${backAddr}/auth/users/login`, {
@@ -34,11 +42,12 @@ export const login = (user) => {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(user)
-    })
-        .then(resp => resp.json())
+    }).then(resp => resp.json())
         .catch(err => console.log(err));
 }
 
+
+// -----------------------------------CORE-----------------------------------
 export const getBooks = (newName, accessToken) => {
     return fetch(`${backAddr}/api/books/find/?` + new URLSearchParams({pattern: newName.toLowerCase(), limit: 10}), {
         method: "GET",
@@ -47,9 +56,12 @@ export const getBooks = (newName, accessToken) => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${accessToken}`
         },
+    }).then(resp => {
+        if (resp.status === 401) {
+            throw new AuthorizationError("jwt died");
+        }
+        return resp.json();
     })
-        .then(resp => resp.json())
-        .catch(err => console.log(err));
 }
 
 export const rateBook = (bookId, newRate, userId, accessToken) => {
@@ -65,12 +77,15 @@ export const rateBook = (bookId, newRate, userId, accessToken) => {
             rate: newRate,
             user_id: userId // схуяли тут вообще строка, в swagger не строка ** а шоб все охуели
         })
+    }).then(resp => {
+        if (resp.status === 401) {
+            throw new AuthorizationError("jwt died");
+        }
     })
-        .catch(err => console.log(err))
 }
 
 export const getRatedBooks = (userId, accessToken) => {
-    return fetch(`${backAddr}/api/get_rated_books/${userId}`, {
+    return fetch(`${backAddr}/api/user/rated_books/`, {
         method: "GET",
         headers: {
             'accept': 'application/json',
@@ -78,12 +93,16 @@ export const getRatedBooks = (userId, accessToken) => {
             'Authorization': `Bearer ${accessToken}`
         }
     })
-        .then(resp => resp.json())
-        .catch(err => console.log(err));
+        .then(resp => {
+            if (resp.status === 401) {
+                throw new AuthorizationError("jwt died");
+            }
+            return resp.json();
+        })
 }
 
-export const getRecommendedBooks = (userId, accessToken, limit=5) => {
-    return fetch(`${backAddr}/api/books/recommendations/${userId}?`+new URLSearchParams({limit: limit}), {
+export const getRecommendedBooks = (userId, accessToken, limit = 5) => {
+    return fetch(`${backAddr}/api/user/books/recommendation?` + new URLSearchParams({limit: limit}), {
         method: "GET",
         headers: {
             'accept': 'application/json',
@@ -91,33 +110,43 @@ export const getRecommendedBooks = (userId, accessToken, limit=5) => {
             'Authorization': `Bearer ${accessToken}`
         }
     })
-        .then(resp => resp.json())
-        .catch(err => console.log(err));
+        .then(resp => {
+            if (resp.status === 401) {
+                throw new AuthorizationError("jwt died");
+            }
+            return resp.json();
+        })
 }
 
 export const getUserStatus = (userId, accessToken) => {
-    return fetch(`${backAddr}/api/user/status/${userId}`, {
+    return fetch(`${backAddr}/api/user/status`, {
         method: "GET",
         headers: {
             'accept': 'application/json',
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${accessToken}`
         }
-    })
-        .then(resp => resp.json())
-        .catch(err => console.log(err));
+    }).then(resp => {
+            if (resp.status === 401) {
+                throw new AuthorizationError("jwt died");
+            }
+            return resp.json();
+        })
 }
 export const getWishesBooks = (userId, accessToken) => {
-    return fetch(`${backAddr}/api/books/wishes/${userId}`, {
+    return fetch(`${backAddr}/api/user/wish_list`, {
         method: "GET",
         headers: {
             'accept': 'application/json',
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${accessToken}`
         }
-    })
-        .then(resp => resp.json())
-        .catch(err => console.log(err));
+    }).then(resp => {
+            if (resp.status === 401) {
+                throw new AuthorizationError("jwt died");
+            }
+            return resp.json();
+        })
 }
 export const addWishBook = (bookId, userId, accessToken) => {
     return fetch(`${backAddr}/api/books/wish/`, {
@@ -131,11 +160,14 @@ export const addWishBook = (bookId, userId, accessToken) => {
             book_id: bookId,
             user_id: userId // схуяли тут вообще строка, в swagger не строка ** а шоб все охуели
         })
+    }).then(resp => {
+        if (resp.status === 401) {
+            throw new AuthorizationError("jwt died");
+        }
     })
-        .catch(err => console.log(err))
 }
 export const unRateBook = (bookId, userId, accessToken) => {
-    return fetch(`${backAddr}/api/books/unrate/`, {
+    return fetch(`${backAddr}/api/books/unrate`, {
         method: "POST",
         headers: {
             'accept': 'application/json',
@@ -146,6 +178,23 @@ export const unRateBook = (bookId, userId, accessToken) => {
             book_id: bookId,
             user_id: userId // схуяли тут вообще строка, в swagger не строка ** а шоб все охуели
         })
+    }).then(resp => {
+        if (resp.status === 401) {
+            throw new AuthorizationError("jwt died");
+        }
     })
-        .catch(err => console.log(err))
+}
+export const deleteAccount = async (accessToken) => {
+    return fetch(`${backAddr}/api/user/me`, {
+        method: "DELETE",
+        headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        },
+    }).then(resp => {
+            if (resp.status === 401) {
+                throw new AuthorizationError("jwt died");
+            }
+        })
 }

@@ -20,7 +20,7 @@ def hash_password(password: str, salt: str) -> str:
 
 
 def create_access_token(
-    config: Config, user: User, expires_delta: timedelta | None = None
+        config: Config, user: User, expires_delta: timedelta | None = None
 ):
     payload = user.__dict__
     to_encode = payload.copy()
@@ -46,3 +46,8 @@ def validate_jwt(config: Config, token: str) -> User:
     )
 
     return user
+
+
+def get_user_from_jwt(conf: Config, auth_header: str):
+    token = auth_header.split("Bearer ")
+    return validate_jwt(conf, token[1])

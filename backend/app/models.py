@@ -22,6 +22,7 @@ class Book(BaseModel):
 class BookExt(Book):
     rating: Optional[int]
     want_to_read: Optional[bool]
+    avg_rating: Optional[int]
 
 
 class BooksExtResponse(BaseModel):
@@ -44,6 +45,7 @@ class BooksByPatternItem(BaseModel):
     image_url_s: str
     image_url_m: str
     image_url_l: str
+    rating: int
 
 
 class BooksByPatternResponse(BaseModel):

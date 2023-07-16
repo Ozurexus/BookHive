@@ -1,31 +1,39 @@
 .modal {
-    justify-content: center;
     width: 50%;
-    height: 50vh;
+    height: 50%;
+    margin-top: 25vh;
     background: linear-gradient(rgb(255, 153, 1), rgb(255, 201, 41));
     border-radius: 10px;
     padding: 50px;
-    margin-top: 25vh;
+    min-height: 400px;
+    align-self: center;
+    justify-content: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 400px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
-.h1{
+
+.h1 {
     color: white;
     font-size: 4em;
 }
-.p{
+
+.p {
     color: white;
     justify-self: center;
-
 }
-.regBtn{
+
+.pError {
+    font-weight: bold;
+}
+
+.regBtn {
     color: white;
     text-decoration: none;
     justify-self: flex-end;
 }
+
 .modalForm {
     width: 100%;
     height: 100%;
@@ -34,7 +42,8 @@
     align-items: center;
     padding: 10px 0px;
 }
-.logInBtn{
+
+.logInBtn {
     margin-top: 20px;
     padding: 10px 60px;
     background-color: rgb(255, 152, 0);
@@ -44,4 +53,13 @@
     border-radius: 20px;
     font-size: 1.5em;
     cursor: pointer;
+}
+
+.notUserFound {
+    color: red;
+}
+
+.userCreated {
+    color: rgba(51,255,61,0.49);
+    font-weight: bold;
 }

@@ -13,6 +13,9 @@
     height: 250px;
     margin-top: 5px;
 }
+.ratingAndP{
+    display: flex;
+}
 .p::-webkit-scrollbar {
     width: 38px;
 }

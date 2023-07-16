@@ -8,12 +8,10 @@ services:
       POSTGRES_USER: {{ postgres_user }}
       POSTGRES_PASSWORD: {{ postgres_password }}
       POSTGRES_DB: {{ postgres_database }}
-    ports:
-      - "5432:5432"
     volumes:
       - bookhive-data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d bookhive" ]
+      test: [ "CMD-SHELL", "pg_isready -U {{ postgres_user }} -d {{ postgres_database }}" ]
       interval: 10s
       timeout: 5s
       retries: 5

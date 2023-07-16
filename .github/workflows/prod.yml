@@ -1,0 +1,26 @@
+name: deploy
+
+on:
+  pull_request:
+    branches: [main]
+    types: [closed]
+jobs:
+  build:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create SSH key
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_PRIVATE_KEY" > ../private.key
+          sudo chmod 600 ../private.key
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+          SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
+          SSH_KEY_PATH: ${{ github.workspace }}/../private.key
+      - name: Deploy on server
+        run: ssh -i $SSH_KEY_PATH -t ${{secrets.SSH_USERNAME}}@${{secrets.SSH_HOST}} "sudo -s && cd /home/${{secrets.SSH_USERNAME}}/BookHive && git checkout main && git pull origin main && chmod +x deploy.sh && ./deploy.sh"
+        env:
+          SSH_KEY_PATH: ${{ github.workspace }}/../private.key

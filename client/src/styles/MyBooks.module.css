@@ -42,7 +42,7 @@
 
 .leftpanel {
     display: grid;
-    grid-template-rows: 43% 57%;
+    grid-template-rows: 50% 50%;
     margin-left: 20px;
     margin-top: 22px;
 }

@@ -5,3 +5,7 @@ __pycache__
 *.pyo
 myvenv
 backend/config.json
+config.json
+docker-compose.yml
+nginx.conf
+ml/config.json

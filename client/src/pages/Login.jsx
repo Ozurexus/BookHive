@@ -1,17 +1,23 @@
-import React, {useContext, useRef} from "react";
+import React, {useContext, useRef, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import MyInput from "../components/UI/Input/MyInput";
 import styles from '../styles/Login.module.css'
 import {AuthContext} from "../context";
 import {login} from "../utils/backendAPI";
+import {blue, yellow} from "@mui/material/colors";
 
 const Login = () => {
     const {setIsAuth, setUserId, setAccessToken} = useContext(AuthContext);
     const navigate = useNavigate();
-    console.log('Render login')
 
     const logRef = useRef();
     const passRef = useRef();
+
+    const [userExist, setUserExist] = useState(true);
+    const [inputStyle, setInputStyle] = useState({});
+
+
+    const userNotFoundStyle = {background:"rgba(238,34,94,0.49)"}
 
     return (
         <div className={styles.modal}>
@@ -21,7 +27,8 @@ const Login = () => {
                 login({login:logRef.current.value, password:passRef.current.value})
                     .then(user => {
                         if(user.detail) {
-                            alert("Wrong user");
+                            setInputStyle(userNotFoundStyle);
+                            setUserExist(false);
                             logRef.current.value = '';
                             passRef.current.value = '';
                         } else {
@@ -40,11 +47,20 @@ const Login = () => {
                 <MyInput
                          ref={logRef}
                          type="text"
-                         placeholder="Username" />
+                         placeholder="Username"
+                         style={inputStyle}
+                />
                 <MyInput
                          ref={passRef}
                          type="password"
-                         placeholder="Password" />
+                         placeholder="Password"
+                         style={inputStyle}
+                />
+                {!userExist &&
+                    <div className={styles.notUserFound}>
+                        <p>Not found</p>
+                    </div>
+                }
                 <button className={styles.logInBtn}>Log In</button>
             </form>
             <p className={styles.p}>or</p>

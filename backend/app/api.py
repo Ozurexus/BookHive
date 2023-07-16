@@ -2,7 +2,7 @@ from __future__ import annotations
 import logging
 from time import sleep
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request as FastApiRequest, Header
 from fastapi.responses import JSONResponse, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,7 +15,7 @@ from db import *
 from config import get_config
 from jwt import *
 from util import *
-from typing import List
+from typing import List, Annotated
 
 # ------------------------------------MIDDLEWARE------------------------------------
 WHITE_LIST_URLS = ["/api/docs", "/api/ping", "/api/openapi.json"]
@@ -30,7 +30,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self.some_attribute = some_attribute
 
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(self, request: FastApiRequest, call_next):
         if not config.BackendConfig.with_auth:
             response = await call_next(request)
             return response
@@ -91,47 +91,11 @@ db = DB(config)
 # ------------------------------------ML------------------------------------
 ml_client = MlClient(config.BackendConfig.ml_addr)
 
-
 # ------------------------------------STATIC---------------------------------
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+
 # ------------------------------------API------------------------------------
-
-
-@app_api.get("/get_rated_books/{user_id}", response_model=BooksExtResponse)
-async def get_rated_books(user_id):
-    # getting book_ids
-    try:
-        books: List[Book] = db.get_user_recommended_books(user_id)
-    except Exception as e:
-        db.rollback()
-        logging.error(e)
-        raise HTTPException(status_code=500)
-    return BooksExtResponse(items=books, size=len(books))
-
-
-@app_api.get("/books/recommendations/{user_id}", response_model=BooksExtResponse)
-async def get_recommendations(user_id: int, limit: int = 3):
-    """
-    Из мл модели
-    """
-    try:
-        book_ids = ml_client.get_recommendations(int(user_id), int(limit))
-        book_ids = [int(book_id) for book_id in book_ids]
-    except Exception as e:
-        logging.error(e)
-        raise HTTPException(status_code=500)
-
-    try:
-        books = db.get_books_by_ids(book_ids, user_id)
-    except Exception as e:
-        db.rollback()
-        logging.error(e)
-        raise HTTPException(status_code=500)
-    resp = BooksExtResponse(items=books, size=len(books))
-    return resp
-
-
 @app_api.get("/books/find/", response_model=BooksByPatternResponse)
 async def books_find_by_pattern(pattern: str = "", limit: int = 0, by_author: bool = False):
     """
@@ -207,10 +171,26 @@ async def wish_un_wish_book(rate_req: WantToReadBookReq):
         raise HTTPException(status_code=500)
 
 
-@app_api.get("/books/wishes/{user_id}", response_model=BooksExtResponse)
-async def get_user_wishes_books(user_id: int):
+@app_api.get("/user/books/recommendation/", response_model=BooksExtResponse)
+async def get_recommendations(limit: int = 3, Authorization: str = Header(None)):
+    """
+    Из мл модели
+    """
     try:
-        books = db.get_user_favorite_books(user_id)
+        user: User = get_user_from_jwt(config, Authorization)
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=401)
+
+    try:
+        book_ids = ml_client.get_recommendations(int(user.id), int(limit))
+        book_ids = [int(book_id) for book_id in book_ids]
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=500)
+
+    try:
+        books = db.get_books_by_ids(book_ids, user.id)
     except Exception as e:
         db.rollback()
         logging.error(e)
@@ -219,10 +199,53 @@ async def get_user_wishes_books(user_id: int):
     return resp
 
 
-@app_api.get("/user/status/{user_id}", response_model=UserStatusResponse)
-async def get_user_status(user_id: int):
+@app_api.get("/user/rated_books/", response_model=BooksExtResponse)
+async def get_rated_books(Authorization: str = Header(None)):
     try:
-        review_books_num = db.get_user_reviewed_books_num(user_id)
+        user: User = get_user_from_jwt(config, Authorization)
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=401)
+
+    try:
+        books: List[Book] = db.get_user_recommended_books(user.id)
+    except Exception as e:
+        db.rollback()
+        logging.error(e)
+        raise HTTPException(status_code=500)
+    return BooksExtResponse(items=books, size=len(books))
+
+
+@app_api.get("/user/wish_list/", response_model=BooksExtResponse)
+async def get_user_wishes_books(Authorization: str = Header(None)):
+    """Получить списпок желаемых книг текущего юзера"""
+    try:
+        user: User = get_user_from_jwt(config, Authorization)
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=401)
+
+    try:
+        books = db.get_user_favorite_books(user.id)
+    except Exception as e:
+        db.rollback()
+        logging.error(e)
+        raise HTTPException(status_code=500)
+    resp = BooksExtResponse(items=books, size=len(books))
+    return resp
+
+
+@app_api.get("/user/status/", response_model=UserStatusResponse)
+async def get_user_status(Authorization: str = Header(None)):
+    """Получить статус и кол-во книг"""
+    try:
+        user: User = get_user_from_jwt(config, Authorization)
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=401)
+
+    try:
+        review_books_num = db.get_user_reviewed_books_num(user.id)
     except Exception as e:
         db.rollback()
         logging.error(e)
@@ -231,6 +254,30 @@ async def get_user_status(user_id: int):
     return UserStatusResponse(
         status=calculate_user_status(review_books_num), reviewed_books=review_books_num
     )
+
+
+@app_api.delete("/user/me", response_model=None)
+async def delete_me(Authorization: str = Header(None)):
+    """Юзер id из jwt берет.
+
+    Через swagger запрос не делается - Authorization зарезирвирован сваггером.
+
+    Делай так - curl -X DELETE -H "Authorization: Bearer TOKEN" http://127.0.0.1:8080/api/user/me.
+    """
+    try:
+        user: User = get_user_from_jwt(config, Authorization)
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=401)
+
+    try:
+        db.delete_account(user.id)
+    except Exception as e:
+        db.rollback()
+        logging.error(e)
+        raise HTTPException(status_code=500)
+
+    return Response(status_code=200)
 
 
 # ------------------------------------------------------AUTH------------------------------------------------------------------------

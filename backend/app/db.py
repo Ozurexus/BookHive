@@ -65,6 +65,22 @@ class DB:
     def rollback(self):
         self.conn.rollback()
 
+    def map_avg_rating_books(self, books: List[BookExt]) -> List[BookExt]:
+        query = """SELECT b.id, AVG(r.rating)
+                FROM books b 
+                    JOIN ratings r ON b.id = r.book_id
+                WHERE b.id IN %s
+                GROUP BY b.id
+                """
+        required_ids = tuple([int(book.id) for book in books])
+        self.cur.execute(query, (required_ids,))
+        dst = self.cur.fetchall()
+
+        books_rating_map = {int(book_id): int(avg_rating) for book_id, avg_rating in dst}
+        for book in books:
+            book.avg_rating = books_rating_map.get(book.id, 0)
+        return books
+
     def map_ratings_book(self, books: List[BookExt], user_id: int) -> List[BookExt]:
         query = """SELECT rating, book_id FROM ratings WHERE user_id=%s"""
         self.cur.execute(query, (user_id,))
@@ -79,7 +95,7 @@ class DB:
         return books
 
     def update_images(self, book: BookExt):
-        logging.info(f'updating image urls... {book.id}')
+        logging.debug(f'updating image urls... {book.id}')
         query = "UPDATE books SET image_url_s=%s, image_url_m=%s, image_url_l=%s WHERE id=%s"
         self.cur.execute(query, (book.image_url_s, book.image_url_m, book.image_url_l, book.id))
         self.conn.commit()
@@ -115,7 +131,7 @@ class DB:
         """ genre, image, etc..."""
         self.handle_genre_annotation(book_obj)
         if book_obj.image_url_l != "":
-            logging.info(f"not empty image book_id:{book_obj.id}, link={book_obj.image_url_l} - OK")
+            logging.debug(f"not empty image book_id:{book_obj.id}, link={book_obj.image_url_l} - OK")
         self.handle_images(book_obj)
         self.books_checked.add(book_obj.id)
 
@@ -181,11 +197,24 @@ class DB:
             WHERE r.user_id = %s
         """
         self.cur.execute(select_query, (user_id,))
-        return self.parse_books_ext_from_db(self.cur.fetchall(), user_id)
+        books = self.map_avg_rating_books(self.parse_books_ext_from_db(self.cur.fetchall(), user_id))
+        return books
 
-    def find_books_by_title_pattern(self, pattern: str, limit: int = 0, by_author: bool = False) -> List[BooksByPatternItem]:
-        query = """SELECT id, title, author, image_url_s, image_url_m, image_url_l, genre, annotation, isbn
-        FROM books WHERE LOWER(title) LIKE (%s)
+    def find_books_by_title_pattern(self, pattern: str, limit: int = 0, by_author: bool = False) -> List[
+        BooksByPatternItem]:
+        query = """SELECT b.id,
+                   b.title,
+                   b.author,
+                   b.image_url_s,
+                   b.image_url_m,
+                   b.image_url_l,
+                   b.genre,
+                   b.annotation,
+                   b.isbn,
+                   avg(r.rating)
+            FROM books b JOIN ratings r on b.id = r.book_id
+            WHERE LOWER(title) LIKE (%s)
+            GROUP BY b.id
         """
         if by_author:
             query = query.replace("LOWER(title)", "LOWER(author)")
@@ -211,7 +240,8 @@ class DB:
                     image_url_l=item[5],
                     genre=item[6],
                     annotation=item[7],
-                    isbn=item[8]
+                    isbn=item[8],
+                    rating=int(item[9]),
                 )
             )
 
@@ -267,7 +297,7 @@ class DB:
                                   annotation=book[10])
             self.handle_book(book_obj)
 
-            logging.info("handled genre,annotation,images")
+            logging.debug("handled genre,annotation,images")
 
     def un_rate_book(self, rate_req: UnRateReq):
         # checking whether already exists
@@ -277,7 +307,7 @@ class DB:
             return
 
         # if no just insert
-        query = """DELETE FROM ratings WHERE user_id=%s, book_id=%s"""
+        query = """DELETE FROM ratings WHERE user_id=%s AND book_id=%s"""
         try:
             self.cur.execute(query, (rate_req.user_id, rate_req.book_id))
             self.conn.commit()
@@ -366,9 +396,10 @@ class DB:
                 WHERE fb.user_id = %s"""
 
         self.cur.execute(query, (user_id,))
-        return self.parse_books_ext_from_db(
+        books = self.parse_books_ext_from_db(
             self.cur.fetchall(), user_id, need_ratings=True
         )
+        return self.map_avg_rating_books(books)
 
     def get_books_by_ids(self, book_ids: list, user_id: int) -> List[BookExt]:
         select_query = """
@@ -399,3 +430,8 @@ class DB:
         self.cur.execute(query, (user_id,))
         dst = self.cur.fetchall()
         return len(dst)
+
+    def delete_account(self, user_id):
+        query = """DELETE FROM users WHERE id=%s"""
+        self.cur.execute(query, (user_id,))
+        self.conn.commit()
