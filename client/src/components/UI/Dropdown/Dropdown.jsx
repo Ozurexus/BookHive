@@ -15,7 +15,7 @@ function Dropdown({booksArr, refOutside, isComponentVisible, fetches, ...props})
     const [pickedBook, setPickedBook] = useState({rating: 0});
     const [pickedRate, setPickedRate] = useState(-1);
     const [prevPickedRate, setPrevPickedRate] = useState(-1);
-    const {recBooks} = useContext(UserContext);
+    //const {recBooks} = useContext(UserContext);
 
     const {
         userId,
@@ -35,11 +35,10 @@ function Dropdown({booksArr, refOutside, isComponentVisible, fetches, ...props})
     useEffect(() => {
         const oldBook = books.find((elem, ind, arr) => elem.id === pickedBook.id)
         //console.log(oldBook)
-        if (oldBook){
+        if (oldBook) {
             setPickedRate(oldBook.rating / 2);
             setPrevPickedRate(oldBook.rating / 2);
-        }
-        else{
+        } else {
             setPickedRate(-1);
             setPrevPickedRate(-1);
         }
