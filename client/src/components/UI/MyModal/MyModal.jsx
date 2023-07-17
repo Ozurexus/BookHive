@@ -12,7 +12,7 @@ function MyModal({children, visible, setVisible, ref, needCloseBtn = true}) {
             <div className={style.myModalContent} onClick={(e) => e.stopPropagation()}>
                 {needCloseBtn &&
                     <button className={style.closeBtn} onClick={() => setVisible(false)}>
-                        <img src='/close.png'/>
+                        <img src='/close-honeycomb.png'/>
                     </button>
                 }
                 {children}
